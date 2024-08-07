@@ -1,0 +1,123 @@
+---
+title: "Preliminary Analysis and Tables"
+format: html
+editor: visual
+---
+
+
+
+## Loading Packages
+
+
+
+```{r}
+library("tidyverse")
+library("fpp3")
+library("GGally")
+library("here")
+```
+
+
+
+## Data Loading
+
+
+```{r}
+data <- read_csv(here("data/data-consolidated.csv"))
+```
+
+
+
+## Data Arrangement
+
+
+
+```{r}
+# Year = Index
+data_arranged <- data |>
+    rename(
+        no = `Serial No`,
+        fis_yr = `Fiscal Year`,
+        nit_vol_k_ton = `Nitrogen Volume (N K tonnes)`,
+        nit_price_per_ton = `Nitrogen Price (per tonne)`,
+        water_maf = `Water Availability (MAF)`,
+        cr_area_mn_hec = `Cropped Area (million hectares)`,
+        agric_gdp_rs_bn = `Agricultural GDP (Rs in billions)`,
+        agric_gdp_usd_bn_cy = `Agricultural GDP (current BN US$) C-Y`,
+        credit_dis_rs_mn = `Total Credit Disbursed (Rs million)`,
+        inp_out_ratio = `Input Output Ratio`,
+        n_p_ratio = `N / P`,
+        tech_proxy = `Technology Proxy`
+    ) |>
+    mutate(
+        lg_nit_vol_k_ton = log(nit_vol_k_ton),
+        lg_nit_price_per_ton = log(nit_price_per_ton),
+        lg_water_maf = log(water_maf),
+        lg_cr_area_mn_hec = log(cr_area_mn_hec),
+        lg_agric_gdp_rs_bn = log(agric_gdp_rs_bn),
+        lg_credit_dis_rs_mn = log(credit_dis_rs_mn),
+        lg_inp_out_ratio = log(inp_out_ratio),
+        lg_n_p_ratio = log(n_p_ratio),
+        lg_tech_proxy = log(tech_proxy)
+    )
+
+data_arranged$fis_yr <- as.integer(data_arranged$fis_yr)
+data_arranged$no <- as.integer(data_arranged$no)
+data_arranged$nit_vol_k_tons <- as.integer(data_arranged$nit_vol_k_ton)
+data_arranged$credit_dis_rs_mn <- as.integer(data_arranged$nit_vol_k_ton)
+
+data_tsibble <- data_arranged |> 
+    as_tsibble(index = fis_yr)
+```
+
+
+
+## Data Visualization
+
+## Correlation Table
+
+
+
+```{r}
+my_fn <- function(data, mapping, method="p", use="pairwise", ...){
+
+              # grab data
+              x <- eval_data_col(data, mapping$x)
+              y <- eval_data_col(data, mapping$y)
+
+              # calculate correlation
+              corr <- cor(x, y, method=method, use=use)
+
+              # calculate colour based on correlation value
+              # Here I have set a correlation of minus one to blue, 
+              # zero to white, and one to red 
+              # Change this to suit: possibly extend to add as an argument of `my_fn`
+              colFn <- colorRampPalette(c("blue", "white", "red"), interpolate ='spline')
+              fill <- colFn(100)[findInterval(corr, seq(-1, 1, length=100))]
+
+              ggally_cor(data = data, mapping = mapping, ...) + 
+                theme_void() +
+                theme(panel.background = element_rect(fill=fill))
+            }
+```
+
+```{r}
+p1 <- data_tsibble |> ggpairs(columns = 3:12, 
+                   upper = list(continuous = my_fn),
+                   lower = list(continuous = "smooth"))
+                   
+p1
+```
+
+```{r}
+data_tsibble |>
+    ggpairs(columns = 3:12) +
+    theme_bw()
+```
+
+
+## Descriptive Analysis Table
+
+## CAGR Table
+
+
