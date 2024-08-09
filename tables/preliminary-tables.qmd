@@ -36,9 +36,10 @@ data_arranged <- data |>
         credit_dis_rs_mn = `Total Credit Disbursed (Rs million)`,
         inp_out_ratio = `Input Output Ratio`,
         n_p_ratio = `N / P`,
-        agric_employment = `Agriculture Employment (Mns)`
+        agric_employment = `Agriculture Employment (Mns)`,
+        pkr_per_usd = `PKR-USD`
     ) |>
-    pp
+    mutate(
         lg_nit_vol_k_ton = log(nit_vol_k_ton),
         lg_nit_price_per_ton = log(nit_price_per_ton),
         lg_water_maf = log(water_maf),
@@ -47,7 +48,6 @@ data_arranged <- data |>
         lg_agric_gdp_usd_bn_cy = log(agric_gdp_usd_bn_cy),  
         lg_credit_dis_rs_mn = log(credit_dis_rs_mn),
         lg_inp_out_ratio = log(inp_out_ratio),
-        lg_n_p_ratio = log(n_p_ratio),
     ) |> 
     slice_head(n = 29)
 
