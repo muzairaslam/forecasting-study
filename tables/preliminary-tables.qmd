@@ -17,7 +17,7 @@ library("gt")
 
 ## Data Loading
 ```{r}
-data <- read_csv(here("data/data-consolidated.csv"))
+data <- read_csv(here("data/data-consolidated-2.csv"))
 ```
 
 ## Data Arrangement
@@ -52,7 +52,7 @@ data_arranged <- data |>
         lg_credit_dis_rs_mn = log(credit_dis_rs_mn),
         lg_inp_out_ratio = log(inp_out_ratio),
     ) |> 
-    slice_head(n = 29)
+    slice_tail(n = 29)
 
 data_arranged$fis_yr <- as.integer(data_arranged$fis_yr)
 data_arranged$no <- as.integer(data_arranged$no)
@@ -121,19 +121,69 @@ nom_vars <- data_tsibble |>
         cr_area_mn_hec,
         agric_gdp_rs_bn,
         lag_agric_gdp_rs_bn,
-        agric_gdp_usd_bn_cy ,
+        agric_gdp_usd_bn_cy,
         credit_dis_rs_mn ,
         inp_out_ratio ,
         n_p_ratio,
         agric_employment ,
         pkr_per_usd,
+        tech_proxy
     )
 
+nom_vars <- nom_vars[, -ncol(nom_vars)]
+
 # Calculate the correlation matrix
-correlation_matrix <- cor(data_tsibble)
+correlation_matrix <- cor(nom_vars, use = "pairwise.complete.obs")
 
 # Convert the correlation matrix to a data frame
 correlation_df <- as.data.frame(as.table(correlation_matrix))
+
+# Rename the columns for clarity
+
+# make the table wide
+correlation_wide <- correlation_df |>
+  pivot_wider(names_from = Var2, values_from = Freq)
+
+# Create the correlation table using gt
+# Create the correlation table using gt
+correlation_table <- correlation_wide %>%
+  gt() %>%
+  tab_header(
+    title = "Correlation Matrix",
+    subtitle = "Correlation coefficients for the variables"
+  ) |>
+  fmt_number(
+    decimals = 2
+  ) |>
+  tab_style(
+    style = list(
+      cell_fill(color = "lightgrey"),
+      cell_text(weight = "bold")
+    ),
+    locations = cells_title(groups = c("title", "subtitle"))
+  ) |>
+  tab_options(
+    table.font.size = 12,
+    column_labels.font.size = 14,
+    heading.align = "center",
+    table.align = "center",
+    table.border.top.color = "black",
+    table.border.bottom.color = "black",
+    table.border.top.width = px(2),
+    table.border.bottom.width = px(2)
+  ) |>
+  data_color(
+    columns = vars(-Var1),
+    colors = scales::col_bin(
+      bins = c(-Inf, -0.75, 0.75, Inf),
+      palette = c("red", "white", "white", "#FFCCCB")
+    )
+  )
+
+# Print the correlation table
+print(correlation_table)
+
+gtsave(correlation_table, "correlation_table.docx")
 ```
 
 #### Scatterplot for Water (MAF) and Agriculture GDP (RS)
