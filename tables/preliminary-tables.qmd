@@ -12,6 +12,7 @@ library("fpp3")
 library("GGally")
 library("here")
 library("ggrepel")
+library("gt")
 ```
 
 ## Data Loading
@@ -40,6 +41,7 @@ data_arranged <- data |>
         pkr_per_usd = `PKR-USD`
     ) |>
     mutate(
+        lag_agric_gdp_rs_bn = lag(agric_gdp_rs_bn),
         tech_proxy = (agric_gdp_rs_bn/cr_area_mn_hec)/(cr_area_mn_hec/agric_employment),
         lg_nit_vol_k_ton = log(nit_vol_k_ton),
         lg_nit_price_per_ton = log(nit_price_per_ton),
@@ -62,7 +64,7 @@ data_tsibble <- data_arranged |>
 
 ## Data Visualization
 
-### Correlation Table
+### Correlation Plots
 
 
 ```{r}
@@ -109,6 +111,30 @@ p2 <- data_tsibble |> ggpairs(columns = 13:22,
 p2
 ```
 
+#### Simple Correlation Table for Nominal Variables
+
+```{r}
+nom_vars <- data_tsibble |>
+    select(
+        nit_price_per_ton ,
+        water_maf,
+        cr_area_mn_hec,
+        agric_gdp_rs_bn,
+        lag_agric_gdp_rs_bn,
+        agric_gdp_usd_bn_cy ,
+        credit_dis_rs_mn ,
+        inp_out_ratio ,
+        n_p_ratio,
+        agric_employment ,
+        pkr_per_usd,
+    )
+
+# Calculate the correlation matrix
+correlation_matrix <- cor(data_tsibble)
+
+# Convert the correlation matrix to a data frame
+correlation_df <- as.data.frame(as.table(correlation_matrix))
+```
 
 #### Scatterplot for Water (MAF) and Agriculture GDP (RS)
 
