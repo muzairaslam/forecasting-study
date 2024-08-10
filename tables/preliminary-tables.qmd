@@ -40,6 +40,7 @@ data_arranged <- data |>
         pkr_per_usd = `PKR-USD`
     ) |>
     mutate(
+        tech_proxy = (agric_gdp_rs_bn/cr_area_mn_hec)/(cr_area_mn_hec/agric_employment),
         lg_nit_vol_k_ton = log(nit_vol_k_ton),
         lg_nit_price_per_ton = log(nit_price_per_ton),
         lg_water_maf = log(water_maf),
