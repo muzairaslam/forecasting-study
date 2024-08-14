@@ -20,40 +20,6 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
 </style>
 
 
@@ -98,140 +64,668 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="loading-packages" class="level2">
 <h2 class="anchored" data-anchor-id="loading-packages">Loading Packages</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"tidyverse"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'tidyverse' was built under R version 4.4.1</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'ggplot2' was built under R version 4.4.1</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'tibble' was built under R version 4.4.1</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'tidyr' was built under R version 4.4.1</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'readr' was built under R version 4.4.1</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'purrr' was built under R version 4.4.1</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'dplyr' was built under R version 4.4.1</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'stringr' was built under R version 4.4.1</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'forcats' was built under R version 4.4.1</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'lubridate' was built under R version 4.4.1</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-✔ dplyr     1.1.4     ✔ readr     2.1.5
-✔ forcats   1.0.0     ✔ stringr   1.5.1
-✔ ggplot2   3.5.1     ✔ tibble    3.2.1
-✔ lubridate 1.9.3     ✔ tidyr     1.3.1
-✔ purrr     1.0.2     
-── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-✖ dplyr::filter() masks stats::filter()
-✖ dplyr::lag()    masks stats::lag()
-ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"fpp3"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Registered S3 method overwritten by 'tsibble':
-  method               from 
-  as_tibble.grouped_df dplyr
-── Attaching packages ──────────────────────────────────────────── fpp3 1.0.0 ──
-✔ tsibble     1.1.5     ✔ fable       0.3.4
-✔ tsibbledata 0.4.1     ✔ fabletools  0.4.2
-✔ feasts      0.3.2     
-── Conflicts ───────────────────────────────────────────────── fpp3_conflicts ──
-✖ lubridate::date()    masks base::date()
-✖ dplyr::filter()      masks stats::filter()
-✖ tsibble::intersect() masks base::intersect()
-✖ tsibble::interval()  masks lubridate::interval()
-✖ dplyr::lag()         masks stats::lag()
-✖ tsibble::setdiff()   masks base::setdiff()
-✖ tsibble::union()     masks base::union()</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"GGally"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Registered S3 method overwritten by 'GGally':
-  method from   
-  +.gg   ggplot2</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"here"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>here() starts at D:/Sifaat/FFC-Forecasting-Study/forecasting-study</code></pre>
-</div>
-</div>
 </section>
 <section id="data-loading" class="level2">
 <h2 class="anchored" data-anchor-id="data-loading">Data Loading</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data/data-consolidated.csv"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Rows: 30 Columns: 12
-── Column specification ────────────────────────────────────────────────────────
-Delimiter: ","
-dbl (12): Serial No, Fiscal Year, Nitrogen Volume (N K tonnes), Nitrogen Pri...
-
-ℹ Use `spec()` to retrieve the full column specification for this data.
-ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-</div>
-</div>
 </section>
 <section id="data-arrangement" class="level2">
 <h2 class="anchored" data-anchor-id="data-arrangement">Data Arrangement</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Year = Index</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>data_arranged <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">no =</span> <span class="st">`</span><span class="at">Serial No</span><span class="st">`</span>,</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">fis_yr =</span> <span class="st">`</span><span class="at">Fiscal Year</span><span class="st">`</span>,</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">nit_vol_k_ton =</span> <span class="st">`</span><span class="at">Nitrogen Volume (N K tonnes)</span><span class="st">`</span>,</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">nit_price_per_ton =</span> <span class="st">`</span><span class="at">Nitrogen Price (per tonne)</span><span class="st">`</span>,</span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">water_maf =</span> <span class="st">`</span><span class="at">Water Availability (MAF)</span><span class="st">`</span>,</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">cr_area_mn_hec =</span> <span class="st">`</span><span class="at">Cropped Area (million hectares)</span><span class="st">`</span>,</span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">agric_gdp_rs_bn =</span> <span class="st">`</span><span class="at">Agricultural GDP (Rs in billions)</span><span class="st">`</span>,</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">agric_gdp_usd_bn_cy =</span> <span class="st">`</span><span class="at">Agricultural GDP (current BN US$) C-Y</span><span class="st">`</span>,</span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">credit_dis_rs_mn =</span> <span class="st">`</span><span class="at">Total Credit Disbursed (Rs million)</span><span class="st">`</span>,</span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">inp_out_ratio =</span> <span class="st">`</span><span class="at">Input Output Ratio</span><span class="st">`</span>,</span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">n_p_ratio =</span> <span class="st">`</span><span class="at">N / P</span><span class="st">`</span>,</span>
-<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">tech_proxy =</span> <span class="st">`</span><span class="at">Technology Proxy</span><span class="st">`</span></span>
-<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>data_arranged<span class="sc">$</span>fis_yr <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(data_arranged<span class="sc">$</span>fis_yr)</span>
-<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>data_arranged<span class="sc">$</span>no <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(data_arranged<span class="sc">$</span>no)</span>
-<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>data_arranged<span class="sc">$</span>nit_vol_k_tons <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(data_arranged<span class="sc">$</span>nit_vol_k_ton)</span>
-<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>data_arranged<span class="sc">$</span>credit_dis_rs_mn <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(data_arranged<span class="sc">$</span>nit_vol_k_ton)</span>
-<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>data_tsibble <span class="ot">&lt;-</span> data_arranged <span class="sc">|&gt;</span> </span>
-<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as_tsibble</span>(<span class="at">index =</span> fis_yr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
 </section>
 <section id="data-visualization" class="level2">
 <h2 class="anchored" data-anchor-id="data-visualization">Data Visualization</h2>
-</section>
-<section id="correlation-table" class="level2">
-<h2 class="anchored" data-anchor-id="correlation-table">Correlation Table</h2>
+<section id="correlation-plots" class="level3">
+<h3 class="anchored" data-anchor-id="correlation-plots">Correlation Plots</h3>
+<section id="normal-variables" class="level4">
+<h4 class="anchored" data-anchor-id="normal-variables">Normal variables</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>data_tsibble <span class="sc">|&gt;</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggpairs</span>(<span class="at">columns =</span> <span class="dv">3</span><span class="sc">:</span><span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="preliminary-tables_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="preliminary-tables_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
+</section>
+<section id="log-transformed-variables" class="level4">
+<h4 class="anchored" data-anchor-id="log-transformed-variables">Log Transformed Variables</h4>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="preliminary-tables_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="simple-correlation-table-for-nominal-variables" class="level4">
+<h4 class="anchored" data-anchor-id="simple-correlation-table-for-nominal-variables">Simple Correlation Table for Nominal Variables</h4>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;div id="tgwnbtajim" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;"&gt;
+  &lt;style&gt;#tgwnbtajim table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#tgwnbtajim thead, #tgwnbtajim tbody, #tgwnbtajim tfoot, #tgwnbtajim tr, #tgwnbtajim td, #tgwnbtajim th {
+  border-style: none;
+}
+
+#tgwnbtajim p {
+  margin: 0;
+  padding: 0;
+}
+
+#tgwnbtajim .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 12px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #000000;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #000000;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#tgwnbtajim .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#tgwnbtajim .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#tgwnbtajim .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#tgwnbtajim .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tgwnbtajim .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tgwnbtajim .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tgwnbtajim .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 14px;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#tgwnbtajim .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 14px;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#tgwnbtajim .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#tgwnbtajim .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#tgwnbtajim .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#tgwnbtajim .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#tgwnbtajim .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#tgwnbtajim .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#tgwnbtajim .gt_from_md &gt; :first-child {
+  margin-top: 0;
+}
+
+#tgwnbtajim .gt_from_md &gt; :last-child {
+  margin-bottom: 0;
+}
+
+#tgwnbtajim .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#tgwnbtajim .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tgwnbtajim .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#tgwnbtajim .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#tgwnbtajim .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#tgwnbtajim .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tgwnbtajim .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#tgwnbtajim .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#tgwnbtajim .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tgwnbtajim .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tgwnbtajim .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#tgwnbtajim .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tgwnbtajim .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#tgwnbtajim .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tgwnbtajim .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tgwnbtajim .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tgwnbtajim .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tgwnbtajim .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tgwnbtajim .gt_left {
+  text-align: left;
+}
+
+#tgwnbtajim .gt_center {
+  text-align: center;
+}
+
+#tgwnbtajim .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#tgwnbtajim .gt_font_normal {
+  font-weight: normal;
+}
+
+#tgwnbtajim .gt_font_bold {
+  font-weight: bold;
+}
+
+#tgwnbtajim .gt_font_italic {
+  font-style: italic;
+}
+
+#tgwnbtajim .gt_super {
+  font-size: 65%;
+}
+
+#tgwnbtajim .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#tgwnbtajim .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#tgwnbtajim .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#tgwnbtajim .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#tgwnbtajim .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#tgwnbtajim .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#tgwnbtajim .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#tgwnbtajim .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#tgwnbtajim div.Reactable &gt; div.rt-table &gt; div.rt-thead &gt; div.rt-tr.rt-tr-group-header &gt; div.rt-th-group:after {
+  height: 0px !important;
+}
+&lt;/style&gt;
+  &lt;table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false"&gt;
+  &lt;thead&gt;
+    &lt;tr class="gt_heading"&gt;
+      &lt;td colspan="10" class="gt_heading gt_title gt_font_normal" style="background-color: #D3D3D3; font-weight: bold;"&gt;Correlation Matrix&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr class="gt_heading"&gt;
+      &lt;td colspan="10" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="background-color: #D3D3D3; font-weight: bold;"&gt;Correlation coefficients for the variables&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr class="gt_col_headings"&gt;
+      &lt;th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="Var1"&gt;Var1&lt;/th&gt;
+      &lt;th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="nit_price_per_ton"&gt;nit_price_per_ton&lt;/th&gt;
+      &lt;th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="water_maf"&gt;water_maf&lt;/th&gt;
+      &lt;th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="cr_area_mn_hec"&gt;cr_area_mn_hec&lt;/th&gt;
+      &lt;th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="agric_gdp_usd_bn_cy"&gt;agric_gdp_usd_bn_cy&lt;/th&gt;
+      &lt;th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="lag_agric_gdp_usd_bn_cy"&gt;lag_agric_gdp_usd_bn_cy&lt;/th&gt;
+      &lt;th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="credit_dis_rs_mn"&gt;credit_dis_rs_mn&lt;/th&gt;
+      &lt;th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="inp_out_ratio"&gt;inp_out_ratio&lt;/th&gt;
+      &lt;th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="n_p_ratio"&gt;n_p_ratio&lt;/th&gt;
+      &lt;th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="tech_proxy"&gt;tech_proxy&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody class="gt_table_body"&gt;
+    &lt;tr&gt;&lt;td headers="Var1" class="gt_row gt_center"&gt;nit_price_per_ton&lt;/td&gt;
+&lt;td headers="nit_price_per_ton" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;1.00&lt;/td&gt;
+&lt;td headers="water_maf" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.06&lt;/td&gt;
+&lt;td headers="cr_area_mn_hec" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.54&lt;/td&gt;
+&lt;td headers="agric_gdp_usd_bn_cy" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;0.90&lt;/td&gt;
+&lt;td headers="lag_agric_gdp_usd_bn_cy" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;0.94&lt;/td&gt;
+&lt;td headers="credit_dis_rs_mn" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;0.80&lt;/td&gt;
+&lt;td headers="inp_out_ratio" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.25&lt;/td&gt;
+&lt;td headers="n_p_ratio" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.32&lt;/td&gt;
+&lt;td headers="tech_proxy" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;0.90&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td headers="Var1" class="gt_row gt_center"&gt;water_maf&lt;/td&gt;
+&lt;td headers="nit_price_per_ton" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.06&lt;/td&gt;
+&lt;td headers="water_maf" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;1.00&lt;/td&gt;
+&lt;td headers="cr_area_mn_hec" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.14&lt;/td&gt;
+&lt;td headers="agric_gdp_usd_bn_cy" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.20&lt;/td&gt;
+&lt;td headers="lag_agric_gdp_usd_bn_cy" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.10&lt;/td&gt;
+&lt;td headers="credit_dis_rs_mn" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.20&lt;/td&gt;
+&lt;td headers="inp_out_ratio" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.33&lt;/td&gt;
+&lt;td headers="n_p_ratio" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.48&lt;/td&gt;
+&lt;td headers="tech_proxy" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.02&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td headers="Var1" class="gt_row gt_center"&gt;cr_area_mn_hec&lt;/td&gt;
+&lt;td headers="nit_price_per_ton" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.54&lt;/td&gt;
+&lt;td headers="water_maf" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.14&lt;/td&gt;
+&lt;td headers="cr_area_mn_hec" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;1.00&lt;/td&gt;
+&lt;td headers="agric_gdp_usd_bn_cy" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.65&lt;/td&gt;
+&lt;td headers="lag_agric_gdp_usd_bn_cy" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.58&lt;/td&gt;
+&lt;td headers="credit_dis_rs_mn" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.65&lt;/td&gt;
+&lt;td headers="inp_out_ratio" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.18&lt;/td&gt;
+&lt;td headers="n_p_ratio" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.51&lt;/td&gt;
+&lt;td headers="tech_proxy" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.62&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td headers="Var1" class="gt_row gt_center"&gt;agric_gdp_usd_bn_cy&lt;/td&gt;
+&lt;td headers="nit_price_per_ton" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;0.90&lt;/td&gt;
+&lt;td headers="water_maf" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.20&lt;/td&gt;
+&lt;td headers="cr_area_mn_hec" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.65&lt;/td&gt;
+&lt;td headers="agric_gdp_usd_bn_cy" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;1.00&lt;/td&gt;
+&lt;td headers="lag_agric_gdp_usd_bn_cy" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;0.96&lt;/td&gt;
+&lt;td headers="credit_dis_rs_mn" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;0.82&lt;/td&gt;
+&lt;td headers="inp_out_ratio" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.03&lt;/td&gt;
+&lt;td headers="n_p_ratio" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.57&lt;/td&gt;
+&lt;td headers="tech_proxy" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;0.94&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td headers="Var1" class="gt_row gt_center"&gt;lag_agric_gdp_usd_bn_cy&lt;/td&gt;
+&lt;td headers="nit_price_per_ton" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;0.94&lt;/td&gt;
+&lt;td headers="water_maf" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.10&lt;/td&gt;
+&lt;td headers="cr_area_mn_hec" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.58&lt;/td&gt;
+&lt;td headers="agric_gdp_usd_bn_cy" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;0.96&lt;/td&gt;
+&lt;td headers="lag_agric_gdp_usd_bn_cy" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;1.00&lt;/td&gt;
+&lt;td headers="credit_dis_rs_mn" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;0.82&lt;/td&gt;
+&lt;td headers="inp_out_ratio" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.09&lt;/td&gt;
+&lt;td headers="n_p_ratio" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.43&lt;/td&gt;
+&lt;td headers="tech_proxy" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;0.90&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td headers="Var1" class="gt_row gt_center"&gt;credit_dis_rs_mn&lt;/td&gt;
+&lt;td headers="nit_price_per_ton" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;0.80&lt;/td&gt;
+&lt;td headers="water_maf" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.20&lt;/td&gt;
+&lt;td headers="cr_area_mn_hec" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.65&lt;/td&gt;
+&lt;td headers="agric_gdp_usd_bn_cy" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;0.82&lt;/td&gt;
+&lt;td headers="lag_agric_gdp_usd_bn_cy" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;0.82&lt;/td&gt;
+&lt;td headers="credit_dis_rs_mn" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;1.00&lt;/td&gt;
+&lt;td headers="inp_out_ratio" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.31&lt;/td&gt;
+&lt;td headers="n_p_ratio" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.36&lt;/td&gt;
+&lt;td headers="tech_proxy" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;0.93&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td headers="Var1" class="gt_row gt_center"&gt;inp_out_ratio&lt;/td&gt;
+&lt;td headers="nit_price_per_ton" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.25&lt;/td&gt;
+&lt;td headers="water_maf" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.33&lt;/td&gt;
+&lt;td headers="cr_area_mn_hec" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.18&lt;/td&gt;
+&lt;td headers="agric_gdp_usd_bn_cy" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.03&lt;/td&gt;
+&lt;td headers="lag_agric_gdp_usd_bn_cy" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.09&lt;/td&gt;
+&lt;td headers="credit_dis_rs_mn" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.31&lt;/td&gt;
+&lt;td headers="inp_out_ratio" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;1.00&lt;/td&gt;
+&lt;td headers="n_p_ratio" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.31&lt;/td&gt;
+&lt;td headers="tech_proxy" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.19&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td headers="Var1" class="gt_row gt_center"&gt;n_p_ratio&lt;/td&gt;
+&lt;td headers="nit_price_per_ton" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.32&lt;/td&gt;
+&lt;td headers="water_maf" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.48&lt;/td&gt;
+&lt;td headers="cr_area_mn_hec" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.51&lt;/td&gt;
+&lt;td headers="agric_gdp_usd_bn_cy" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.57&lt;/td&gt;
+&lt;td headers="lag_agric_gdp_usd_bn_cy" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.43&lt;/td&gt;
+&lt;td headers="credit_dis_rs_mn" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.36&lt;/td&gt;
+&lt;td headers="inp_out_ratio" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.31&lt;/td&gt;
+&lt;td headers="n_p_ratio" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;1.00&lt;/td&gt;
+&lt;td headers="tech_proxy" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.51&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td headers="Var1" class="gt_row gt_center"&gt;tech_proxy&lt;/td&gt;
+&lt;td headers="nit_price_per_ton" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;0.90&lt;/td&gt;
+&lt;td headers="water_maf" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.02&lt;/td&gt;
+&lt;td headers="cr_area_mn_hec" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.62&lt;/td&gt;
+&lt;td headers="agric_gdp_usd_bn_cy" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;0.94&lt;/td&gt;
+&lt;td headers="lag_agric_gdp_usd_bn_cy" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;0.90&lt;/td&gt;
+&lt;td headers="credit_dis_rs_mn" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;0.93&lt;/td&gt;
+&lt;td headers="inp_out_ratio" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;0.19&lt;/td&gt;
+&lt;td headers="n_p_ratio" class="gt_row gt_right" style="background-color: #FFFFFF; color: #000000;"&gt;−0.51&lt;/td&gt;
+&lt;td headers="tech_proxy" class="gt_row gt_right" style="background-color: #FFCCCB; color: #000000;"&gt;1.00&lt;/td&gt;&lt;/tr&gt;
+  &lt;/tbody&gt;
+  
+  
+&lt;/table&gt;
+&lt;/div&gt;</code></pre>
+</div>
+</div>
+</section>
+<section id="scatterplot-for-water-maf-and-agriculture-gdp-rs" class="level4">
+<h4 class="anchored" data-anchor-id="scatterplot-for-water-maf-and-agriculture-gdp-rs">Scatterplot for Water (MAF) and Agriculture GDP (RS)</h4>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="preliminary-tables_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="scatterplot-for-water-maf-and-agriculture-gdp-usd" class="level4">
+<h4 class="anchored" data-anchor-id="scatterplot-for-water-maf-and-agriculture-gdp-usd">Scatterplot for Water (MAF) and Agriculture GDP (USD)</h4>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="preliminary-tables_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="scatterplot-for-water-maf-and-accreage" class="level4">
+<h4 class="anchored" data-anchor-id="scatterplot-for-water-maf-and-accreage">Scatterplot for Water (MAF) and Accreage</h4>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="preliminary-tables_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="scatterplot-for-accreage-and-agriculture-gdp-rs" class="level4">
+<h4 class="anchored" data-anchor-id="scatterplot-for-accreage-and-agriculture-gdp-rs">Scatterplot for Accreage and Agriculture GDP (Rs)</h4>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;ScaleContinuousPosition&gt;
+ Range:  
+ Limits:    0 -- 6e+03</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="preliminary-tables_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
 </section>
 <section id="descriptive-analysis-table" class="level2">
 <h2 class="anchored" data-anchor-id="descriptive-analysis-table">Descriptive Analysis Table</h2>
