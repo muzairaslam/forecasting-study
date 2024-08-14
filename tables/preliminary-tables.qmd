@@ -2,6 +2,9 @@
 title: "Preliminary Analysis and Tables"
 format: html
 editor: visual
+execute:
+  echo: false
+  warning: false
 ---
 
 ## Loading Packages
@@ -41,7 +44,7 @@ data_arranged <- data |>
         pkr_per_usd = `PKR-USD`
     ) |>
     mutate(
-        lag_agric_gdp_rs_bn = lag(agric_gdp_rs_bn),
+        lag_agric_gdp_usd_bn_cy = lag(agric_gdp_usd_bn_cy),
         tech_proxy = (agric_gdp_rs_bn/cr_area_mn_hec)/(cr_area_mn_hec/agric_employment),
         lg_nit_vol_k_ton = log(nit_vol_k_ton),
         lg_nit_price_per_ton = log(nit_price_per_ton),
@@ -119,14 +122,11 @@ nom_vars <- data_tsibble |>
         nit_price_per_ton ,
         water_maf,
         cr_area_mn_hec,
-        agric_gdp_rs_bn,
-        lag_agric_gdp_rs_bn,
         agric_gdp_usd_bn_cy,
+        lag_agric_gdp_usd_bn_cy,
         credit_dis_rs_mn ,
         inp_out_ratio ,
         n_p_ratio,
-        agric_employment ,
-        pkr_per_usd,
         tech_proxy
     )
 
@@ -189,10 +189,35 @@ gtsave(correlation_table, "correlation_table.docx")
 #### Scatterplot for Water (MAF) and Agriculture GDP (RS)
 
 ```{r}
+median_agric <- median(data_tsibble$agric_gdp_rs_bn)
+sd_agric <- sd(data_tsibble$agric_gdp_rs_bn)
+
+# Create data frames for ±1 standard deviation lines
+ymin_1sd_line <- data_tsibble |>
+  mutate(ymin_1sd = median_agric - sd_agric) |>
+  select(water_maf, ymin_1sd)
+
+ymax_1sd_line <- data_tsibble |>
+  mutate(ymax_1sd = median_agric + sd_agric) |>
+  select(water_maf, ymax_1sd)
+
+# Create data frames for ±2 standard deviation lines
+ymin_2sd_line <- data_tsibble |>
+  mutate(ymin_2sd = median_agric - 2 * sd_agric) |>
+  select(water_maf, ymin_2sd)
+
+ymax_2sd_line <- data_tsibble |>
+  mutate(ymax_2sd = median_agric + 2 * sd_agric) |>
+  select(water_maf, ymax_2sd)
+
 water_agric <- ggplot(data_tsibble, aes(x = water_maf, y = agric_gdp_rs_bn)) +
     geom_point() +
     geom_text(aes(label = fis_yr), vjust = -0.5, hjust = 0.5) +
-    geom_smooth(method = lm, se = FALSE, fullrange = TRUE) +
+    geom_smooth(method = lm, se = FALSE, fullrange = FALSE) +
+    geom_line(data = ymin_2sd_line, aes(x = water_maf, y = ymin_2sd), color = "red", linetype = "dashed") + # Add ±2 SD lines
+    geom_line(data = ymax_2sd_line, aes(x = water_maf, y = ymax_2sd), color = "red", linetype = "dashed") +
+    geom_line(data = ymin_1sd_line, aes(x = water_maf, y = ymin_1sd), color = "purple", linetype = "dashed") + # Add ±1 SD lines
+    geom_line(data = ymax_1sd_line, aes(x = water_maf, y = ymax_1sd), color = "purple", linetype = "dashed") +
     theme_classic() +
     labs(
         title = "Scatterplot for Water (MAF) and Agriculture GDP (Rs Billion)",
@@ -200,28 +225,106 @@ water_agric <- ggplot(data_tsibble, aes(x = water_maf, y = agric_gdp_rs_bn)) +
         y = "Agricultural GDP (Rs Billion)"
     ) +
     scale_x_continuous(limits = c(120, 145), breaks = seq(120, 145, 5)) + # Adjusting x-axis    
-    scale_y_continuous(limits = c(0, 6000), breaks = seq(0, 6000, 500)) # Adjusting y-axis
+    scale_y_continuous(limits = c(0, 6000), breaks = seq(0, 6000, 500)) # Adjusting y-axis 
 
+water_agric <- water_agric + 
+  annotate(geom = "text", x = 143, y = 5800, label = paste("Agric GDP PKR Median:", round(median_agric, 2), "\nAgric GDP PKR SD:", round(sd_agric, 2)), hjust = 1, vjust = 1, size = 3, color = "blue")
 
 water_agric
 ```
 
-#### Scatterplot for Water (MAF) and Accreage
+#### Scatterplot for Water (MAF) and Agriculture GDP (USD)
 
 ```{r}
+median_agric <- median(data_tsibble$agric_gdp_usd_bn_cy)
+sd_agric <- sd(data_tsibble$agric_gdp_usd_bn_cy)
+
+# Create data frames for ±1 standard deviation lines
+ymin_1sd_line <- data_tsibble |>
+  mutate(ymin_1sd = median_agric - sd_agric) |>
+  select(water_maf, ymin_1sd)
+
+ymax_1sd_line <- data_tsibble |>
+  mutate(ymax_1sd = median_agric + sd_agric) |>
+  select(water_maf, ymax_1sd)
+
+# Create data frames for ±2 standard deviation lines
+ymin_2sd_line <- data_tsibble |>
+  mutate(ymin_2sd = median_agric - 2 * sd_agric) |>
+  select(water_maf, ymin_2sd)
+
+ymax_2sd_line <- data_tsibble |>
+  mutate(ymax_2sd = median_agric + 2 * sd_agric) |>
+  select(water_maf, ymax_2sd)
+
+water_agric <- ggplot(data_tsibble, aes(x = water_maf, y = agric_gdp_usd_bn_cy)) +
+    geom_point() +
+    geom_text(aes(label = fis_yr), vjust = -0.5, hjust = 0.5) +
+    geom_smooth(method = lm, se = FALSE, fullrange = FALSE) +
+    geom_line(data = ymin_2sd_line, aes(x = water_maf, y = ymin_2sd), color = "red", linetype = "dashed") + # Add ±2 SD lines
+    geom_line(data = ymax_2sd_line, aes(x = water_maf, y = ymax_2sd), color = "red", linetype = "dashed") +
+    geom_line(data = ymin_1sd_line, aes(x = water_maf, y = ymin_1sd), color = "purple", linetype = "dashed") + # Add ±1 SD lines
+    geom_line(data = ymax_1sd_line, aes(x = water_maf, y = ymax_1sd), color = "purple", linetype = "dashed") +
+    theme_classic() +
+    labs(
+        title = "Scatterplot for Water (MAF) and Agriculture GDP (USD Billion)",
+        x = "Water (MAF)",
+        y = "Agricultural GDP (USD Billion)"
+    ) +
+    scale_x_continuous(limits = c(120, 145), breaks = seq(120, 145, 5)) + # Adjusting x-axis    
+    scale_y_continuous(limits = c(0, 40), breaks = seq(0, 40, 3)) # Adjusting y-axis
+
+water_agric <- water_agric + 
+  annotate(geom = "text", x = 143, y = 40, label = paste("Agric GDP USD Median:", round(median_agric, 2), "\nAgric GDP USD SD:", round(sd_agric, 2)), hjust = 1, vjust = 1, size = 3, color = "blue")
+
+water_agric
+
+```
+
+
+
+#### Scatterplot for Water (MAF) and Accreage
+```{r}
+median_cr_area <- median(data_tsibble$cr_area_mn_hec)
+sd_cr_area <- sd(data_tsibble$cr_area_mn_hec)
+
+# Create data frames for ±1 standard deviation lines
+ymin_1sd_line <- data_tsibble |>
+  mutate(ymin_1sd = median_cr_area - sd_cr_area) |>
+  select(water_maf, ymin_1sd)
+
+ymax_1sd_line <- data_tsibble |>
+  mutate(ymax_1sd = median_cr_area + sd_cr_area) |>
+  select(water_maf, ymax_1sd)
+
+# Create data frames for ±2 standard deviation lines
+ymin_2sd_line <- data_tsibble |>
+  mutate(ymin_2sd = median_cr_area - 2 * sd_cr_area) |>
+  select(water_maf, ymin_2sd)
+
+ymax_2sd_line <- data_tsibble |>
+  mutate(ymax_2sd = median_cr_area + 2 * sd_cr_area) |>
+  select(water_maf, ymax_2sd)
+
 water_accreage <- ggplot(data_tsibble, aes(x = water_maf, y = cr_area_mn_hec)) +
     geom_point() +
     geom_text(aes(label = fis_yr), vjust = -0.5, hjust = 0.5) +
-    geom_smooth(method = lm, se = FALSE, fullrange = TRUE) +
+    geom_smooth(method = lm, se = FALSE, fullrange = FALSE) +
+    geom_line(data = ymin_2sd_line, aes(x = water_maf, y = ymin_2sd), color = "red", linetype = "dashed") + # Add ±2 SD lines
+    geom_line(data = ymax_2sd_line, aes(x = water_maf, y = ymax_2sd), color = "red", linetype = "dashed") +
+    geom_line(data = ymin_1sd_line, aes(x = water_maf, y = ymin_1sd), color = "purple", linetype = "dashed") + # Add ±1 SD lines
+    geom_line(data = ymax_1sd_line, aes(x = water_maf, y = ymax_1sd), color = "purple", linetype = "dashed") +
     theme_classic() +
     labs(
         title = "Scatterplot for Water (MAF) and Cropped Area Mn (Hectare)",
         x = "Water (MAF)",
         y = "Cropped Area Mn (Hectare)"
-    ) +    
-    scale_x_continuous(limits = c(120, 145), breaks = seq(120, 145, 5)) + # Adjusting x-axis  
-    scale_y_continuous(limits = c(22, 24.5), breaks = seq(22, 24.5, 0.5)) # Adjusting y-axis
+    ) +
+    scale_x_continuous(limits = c(120, 145), breaks = seq(120, 145, 5)) + # Adjusting x-axis    
+    scale_y_continuous(limits = c(22, 24.7), breaks = seq(22, 24.5, 0.5)) # Adjusting y-axis
 
+water_accreage <- water_accreage + 
+  annotate(geom = "text", x = 143, y = 24.7, label = paste("Cropped Area Median:", round(median_cr_area, 2), "\nCropped Area SD:", round(sd_cr_area, 2)), hjust = 1, vjust = 1, size = 3, color = "blue")
 
 water_accreage
 ```
@@ -232,39 +335,63 @@ water_accreage
 accreage_gdp <- ggplot(data_tsibble, aes(x = cr_area_mn_hec, y = agric_gdp_rs_bn)) +
     geom_point() +
     geom_text(aes(label = fis_yr), vjust = -0.5, hjust = 0.5) +
-    geom_smooth(method = lm, se = FALSE, fullrange = TRUE) +
+    geom_smooth(method = lm, se = TRUE, fullrange = TRUE) +
     theme_classic() +
     labs(
-        title = "Scatterplot for Agriculture GDP (Rs) and Accreage",
+        title = "Scatterplot for Agriculture GDP (Rs) and Cropped Accreage",
         x = "Cropped Area Mn (Hectare)",
         y = "Agricultural GDP (Rs Billion)"
     ) +    
-    scale_x_continuous(limits = c(22, 24.5), breaks = seq(22, 24.5, 0.5)) # Adjusting x-axis  
+    scale_x_continuous(limits = c(22, 24.5), breaks = seq(22, 24.5, 0.5)) + # Adjusting x-axis  
     scale_y_continuous(limits = c(0, 6000), breaks = seq(0, 6000, 500)) # Adjusting y-axis
-
 
 accreage_gdp
 ```
 
-#### Scatterplot for Tech Proxy and Agriculture GDP (Rs)
 ```{r}
-techproxy_gdp <- ggplot(data_tsibble, aes(x = tech_proxy, y = agric_gdp_rs_bn)) +
-    geom_point() +
-    geom_text_repel(aes(label = fis_yr), nudge_y = 10, nudge_x = 0.1, box.padding = 0.5, point.padding = 0.5, segment.size = 0.2) +
-    geom_smooth(method = lm, se = FALSE, fullrange = TRUE) +
+# pak rs value should be above, USD line graph should come down.
+#agric_gdp_rs_dollar <- ggplot(data_tsibble, aes(x = fis_yr)) +
+    #geom_line(aes(y = agric_gdp_rs_bn), color = "blue") +
+    #geom_point(aes(y = agric_gdp_rs_bn), color = "blue")  +
+    #theme_classic() +
+    #labs(
+        #title = "Time Series plot for Agric GDP (Rs) and Agric GDP (USD)",
+        #x = "Years",
+        #y = "Agric GDP (Rs Bn)"
+    #) + 
+    #scale_x_continuous(limits = c(1993, 2021), breaks = seq(1993, 2021, 5)) +  # Adjusting x-axis    
+    #scale_y_continuous(
+        #name = "Agric GDP (Rs Bn)",
+        #limits = c(0, 6000),
+        #breaks = seq(0, 6000, 500)
+    #)
+    #scale_color_manual(values = c("Agric GDP (Rs Bn)" = "blue", "Agric GDP (USD Bn)" = "red"))
+
+
+# agric_gdp_rs_dollar
+```
+
+
+```{r}
+pkr_per_usd_plot <- ggplot(data_tsibble, aes(x = fis_yr, y = pkr_per_usd)) +
+    geom_line(color = "green") +
+    geom_point(color = "green") +
     theme_classic() +
     labs(
-        title = "Scatterplot for Agriculture GDP (Rs) and Accreage",
-        x = "Technology Proxy",
-        y = "Agricultural GDP (Rs Billion)"
-    ) +    
-    #scale_x_continuous(limits = c(2000, 2300000), breaks = seq(20000, 230000, 30000)) # Adjusting x-axis  
-    scale_y_continuous(limits = c(0, 6000), breaks = seq(0, 6000, 500)) # Adjusting y-axis
-
-techproxy_gdp
+        title = "Time Series plot for Forex (PKR Per USD)",
+        x = "Years",
+        y = "PKR"
+    ) +
+    scale_x_continuous(limits = c(1993, 2021), breaks = seq(1993, 2021, 5)) +  
+    scale_y_continuous(
+        name = "PKR per USD",
+        limits = c(0, 180),
+        breaks = seq(0, 180, 30)
+    )
+print(pkr_per_usd_plot)
 ```
+
 
 ## Descriptive Analysis Table
 
-## CAGR Table
 
