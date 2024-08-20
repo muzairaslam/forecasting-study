@@ -1,0 +1,650 @@
+---
+title: "Regression Analysis"
+format: html
+---
+
+```{r}
+library("tidyverse")
+library("ggpubr")
+library("fpp3")
+library("here")
+library("gt")
+library("gtsummary")
+library("car")
+options(scipen = 10)  # Temporarily increase penalty for scientific notation
+set.seed(1)         # for reproduciblity
+```
+
+```{r}
+data <- read_csv(here("data/data-consolidated-2.csv"))
+```
+
+
+```{r}
+# Year = Index
+data_arranged <- data |>
+    rename(
+        no = `Serial No`,
+        fis_yr = `Fiscal Year`,
+        nit_vol_k_ton = `Nitrogen Volume (N K tonnes)`,
+        nit_price_per_ton = `Nitrogen Price (per tonne)`,
+        water_maf = `Water Availability (MAF)`,
+        cr_area_mn_hec = `Cropped Area (million hectares)`,
+        agric_gdp_rs_bn = `Agricultural GDP (Rs in billions)`,
+        agric_gdp_usd_bn_cy = `Agricultural GDP (current BN US$) C-Y`,
+        credit_dis_rs_mn = `Total Credit Disbursed (Rs million)`,
+        inp_out_ratio = `Input Output Ratio`,
+        n_p_ratio = `N / P`,
+        p_n_ratio = `P/N`,
+        agric_employment = `Agriculture Employment (Mns)`,
+        pkr_per_usd = `PKR-USD`,
+    ) |>
+    mutate(
+        lag_agric_gdp_usd_bn_cy = lag(agric_gdp_usd_bn_cy),
+        tech_proxy = (agric_gdp_rs_bn/cr_area_mn_hec)/(cr_area_mn_hec/agric_employment),
+        lg_nit_vol_k_ton = log(nit_vol_k_ton),
+        lg_nit_price_per_ton = log(nit_price_per_ton),
+        lg_water_maf = log(water_maf),
+        lg_cr_area_mn_hec = log(cr_area_mn_hec),
+        lg_agric_gdp_rs_bn = log(agric_gdp_rs_bn),
+        lg_agric_gdp_usd_bn_cy = log(agric_gdp_usd_bn_cy),  
+        lag_lg_agric_gdp_usd_bn_cy = log(lag_agric_gdp_usd_bn_cy),
+        lg_credit_dis_rs_mn = log(credit_dis_rs_mn),
+        lg_inp_out_ratio = log(inp_out_ratio),
+        lg_n_p_ratio = log(n_p_ratio),
+        lg_p_n_ratio = log(p_n_ratio),
+        lg_tech_proxy = log(tech_proxy)
+    ) |> 
+    slice_tail(n = 29)
+
+data_arranged$fis_yr <- as.integer(data_arranged$fis_yr)
+data_arranged$no <- as.integer(data_arranged$no)
+data_arranged$nit_vol_k_ton <- as.integer(data_arranged$nit_vol_k_ton)
+
+data_tsibble <- data_arranged |> 
+    as_tsibble(index = fis_yr)
+```
+
+### Median and Standard Deviation of Variables
+
+```{r}
+med_price_nit <- median(data_tsibble$nit_price_per_ton)
+std_price_nit <- sd(data_tsibble$nit_price_per_ton)
+
+med_vol_nit <- median(data_tsibble$nit_vol_k_ton)
+std_vol_nit <- sd(data_tsibble$nit_vol_k_ton)
+
+med_water_maf <- median(data_tsibble$water_maf)
+std_water_maf <- sd(data_tsibble$water_maf)
+
+med_cr_area_mn_hec <- median(data_tsibble$cr_area_mn_hec)
+std_cr_area_mn_hec <- sd(data_tsibble$cr_area_mn_hec)
+
+med_agric_gdp <- median(data_tsibble$agric_gdp_usd_bn_cy)
+std_agric_gdp <- sd(data_tsibble$agric_gdp_usd_bn_cy)
+
+med_lag_agric_gdp <- median(data_tsibble$lag_agric_gdp_usd_bn_cy)
+std_lag_agric_gdp <- sd(data_tsibble$lag_agric_gdp_usd_bn_cy)
+
+med_credit_dis <- median(data_tsibble$credit_dis_rs_mn)
+std_credit_dis <- sd(data_tsibble$credit_dis_rs_mn)
+
+med_tech_proxy <- median(data_tsibble$tech_proxy)
+std_tech_proxy <- sd(data_tsibble$tech_proxy)
+
+med_np_ratio <- median(data_tsibble$n_p_ratio)
+std_np_ratio <- sd(data_tsibble$n_p_ratio)
+
+med_pn_ratio <- median(data_tsibble$p_n_ratio)
+std_pn_ratio <- sd(data_tsibble$p_n_ratio)
+
+med_input_output_ratio <- median(data_tsibble$inp_out_ratio)
+std_input_output_ratio <- sd(data_tsibble$inp_out_ratio)
+
+# Compute medians and standard deviations for log-transformed variables
+med_lg_nit_vol_k_ton <- median(data_tsibble$lg_nit_vol_k_ton)
+std_lg_nit_vol_k_ton <- sd(data_tsibble$lg_nit_vol_k_ton)
+
+med_lg_nit_price_per_ton <- median(data_tsibble$lg_nit_price_per_ton)
+std_lg_nit_price_per_ton <- sd(data_tsibble$lg_nit_price_per_ton)
+
+med_lg_water_maf <- median(data_tsibble$lg_water_maf)
+std_lg_water_maf <- sd(data_tsibble$lg_water_maf)
+
+med_lg_cr_area_mn_hec <- median(data_tsibble$lg_cr_area_mn_hec)
+std_lg_cr_area_mn_hec <- sd(data_tsibble$lg_cr_area_mn_hec)
+
+med_lag_lg_agric_gdp_usd_bn_cy <- median(data_tsibble$lag_lg_agric_gdp_usd_bn_cy)
+std_lag_lg_agric_gdp_usd_bn_cy <- sd(data_tsibble$lag_lg_agric_gdp_usd_bn_cy)
+
+med_lg_credit_dis_rs_mn <- median(data_tsibble$lg_credit_dis_rs_mn)
+std_lg_credit_dis_rs_mn <- sd(data_tsibble$lg_credit_dis_rs_mn)
+
+med_lg_inp_out_ratio <- median(data_tsibble$lg_inp_out_ratio)
+std_lg_inp_out_ratio <- sd(data_tsibble$lg_inp_out_ratio)
+
+med_lg_n_p_ratio <- median(data_tsibble$lg_n_p_ratio)
+std_lg_n_p_ratio <- sd(data_tsibble$lg_n_p_ratio)
+
+med_lg_p_n_ratio <- median(data_tsibble$lg_p_n_ratio)
+std_lg_p_n_ratio <- sd(data_tsibble$lg_p_n_ratio)
+
+med_lg_tech_proxy <- median(data_tsibble$lg_tech_proxy)
+std_lg_tech_proxy <- sd(data_tsibble$lg_tech_proxy)
+
+# Combine the results into a data frame
+summary_stats <- data.frame(
+  variable = c(
+    "nit_price_per_ton", "nit_vol_k_ton", "water_maf", "cr_area_mn_hec",
+    "lag_agric_gdp_usd_bn_cy", "credit_dis_rs_mn", "tech_proxy", "n_p_ratio",
+    "input_output_ratio", "lg_nit_vol_k_ton", "lg_nit_price_per_ton",
+    "lg_water_maf", "lg_cr_area_mn_hec", "lag_lg_agric_gdp_usd_bn_cy",
+    "lg_credit_dis_rs_mn", "lg_inp_out_ratio", "lg_n_p_ratio", "lg_tech_proxy"
+  ),
+  median = c(
+    med_price_nit, med_vol_nit, med_water_maf, med_cr_area_mn_hec,
+    med_lag_agric_gdp, med_credit_dis, med_tech_proxy, med_np_ratio,
+    med_input_output_ratio, med_lg_nit_vol_k_ton, med_lg_nit_price_per_ton,
+    med_lg_water_maf, med_lg_cr_area_mn_hec, med_lag_lg_agric_gdp_usd_bn_cy,
+    med_lg_credit_dis_rs_mn, med_lg_inp_out_ratio, med_lg_n_p_ratio, med_lg_tech_proxy
+  ),
+  std_dev = c(
+    std_price_nit, std_vol_nit, std_water_maf, std_cr_area_mn_hec,
+    std_lag_agric_gdp, std_credit_dis, std_tech_proxy, std_np_ratio,
+    std_input_output_ratio, std_lg_nit_vol_k_ton, std_lg_nit_price_per_ton,
+    std_lg_water_maf, std_lg_cr_area_mn_hec, std_lag_lg_agric_gdp_usd_bn_cy,
+    std_lg_credit_dis_rs_mn, std_lg_inp_out_ratio, std_lg_n_p_ratio, std_lg_tech_proxy
+  )
+)
+
+# Print the summary statistics data frame
+print(summary_stats)
+
+```
+### Variables
+
+y = Nitrogen Volume K Ton
+
+x1 = Price of Nitrogen
+x2 = Water Avaialability
+x3 = Cropped Accreage
+x4 = Lag Agric GDP Bn USD
+x5 = Agric Credit
+x6 = Tech Proxy
+x7 = Input Output Ratio
+x8 = N/P Ratio
+
+
+### F Ratio Analysis
+
+```{r}
+## Following assumptions are made for Two Standard Dev F test
+## Assumptions
+## 1. Simple random samples
+## 2. Independent samples
+## 3. Normal populations
+
+## Make normality plots for all the variables
+
+ggqqplot(data_tsibble$nit_vol_k_ton, title = "QQ Plot for Nitrogen Consumption Per Ton", add = "qqline")
+
+gghistogram(data_tsibble$nit_vol_k_ton, fill = "brown", add = "median",title = "Histogram for Nitrogen Consumption Per Ton") +
+  annotate("text", x = med_vol_nit, y = 0, label = paste("Median =", round(med_vol_nit, 2)), vjust = -35, color = "black", size = 4) +
+  annotate("text", x = med_vol_nit, y = 0, label = paste("Std Dev=", round(std_vol_nit, 2)), vjust = -33, color = "black", size = 4)
+
+shapiro.test(data_tsibble$nit_vol_k_ton)
+
+# Do not Reject Null Hypothesis and conculde that Nit Vol K Ton does follow a normal distribution
+
+ggqqplot(data_tsibble$nit_price_per_ton, title = "QQ Plot for Nitrogen Price Per Ton", add = "qqline")
+
+gghistogram(data_tsibble$nit_price_per_ton, fill = "red", add = "median",title = "Histogram for Nitrogen Price Per Ton") +
+  annotate("text", x = med_price_nit, y = 0, label = paste("Median =", round(med_price_nit, 2)), vjust = -35, color = "black", size = 4) +
+  annotate("text", x = med_price_nit, y = 0, label = paste("Std Dev=", round(std_price_nit, 2)), vjust = -33, hjust = 0.5, color = "black", size = 4)
+
+shapiro.test(data_tsibble$nit_price_per_ton)
+
+# Reject Null Hypothesis and conculde that Nit Price Per ton does not follow a normal distribution
+
+ggqqplot(data_tsibble$water_maf, title = "QQ Plot for Water MAF", add = "qqline", color = "blue")
+
+gghistogram(data_tsibble$water_maf, fill = "blue", add = "median",title = "Histogram for for Water MAF") +
+  annotate("text", x = med_water_maf, y = 0, label = paste("Median =", round(med_water_maf, 2)), vjust = -35, color = "black", size = 4) +
+  annotate("text", x = med_water_maf, y = 0, label = paste("Std Dev=", round(std_water_maf, 2)), vjust = -33, hjust = 0.4, color = "black", size = 4)
+
+shapiro.test(data_tsibble$water_maf)
+
+ggqqplot(data_tsibble$cr_area_mn_hec, title = "QQ Plot for Cropped Accreage", add = "qqline")
+
+gghistogram(data_tsibble$cr_area_mn_hec, fill = "green", add = "median",title = "Histogram for Cropped Accreage") +
+  annotate("text", x = med_cr_area_mn_hec, y = 0, label = paste("Median =", round(med_cr_area_mn_hec, 2)), vjust = -35, color = "black", size = 4) +
+  annotate("text", x = med_cr_area_mn_hec, y = 0, label = paste("Std Dev=", round(std_cr_area_mn_hec, 2)), vjust = -33, hjust = 0.5, color = "black", size = 4)
+
+shapiro.test(data_tsibble$cr_area_mn_hec)
+
+ggqqplot(data_tsibble$agric_gdp_usd_bn_cy, title = "QQ Plot for Agric GDP USD Bn Cy", add = "qqline", color = "yellow")
+
+gghistogram(data_tsibble$agric_gdp_usd_bn_cy, fill = "yellow", add = "median",title = "Histogram for Agric GDP USD Bn") +
+  annotate("text", x = med_agric_gdp, y = 0, label = paste("Median =", round(med_agric_gdp, 2)), vjust = -35, color = "black", size = 4) +
+  annotate("text", x = med_agric_gdp, y = 0, label = paste("Std Dev=", round(std_agric_gdp, 2)), vjust = -33, hjust = 0.5, color = "black", size = 4)
+
+shapiro.test(data_tsibble$agric_gdp_usd_bn_cy)
+
+# Reject Null Hypothesis and conculde that Agric GDP USD Bn ton does not follow a normal distribution
+
+ggqqplot(data_tsibble$credit_dis_rs_mn, title = "QQ Plot for Agric Credit Disbursement", add = "qqline", color = "purple")
+
+gghistogram(data_tsibble$credit_dis_rs_mn, fill = "purple", add = "median",title = "Histogram for Agric GDP USD Bn") +
+  annotate("text", x = med_credit_dis, y = 0, label = paste("Median =", round(med_credit_dis, 2)), vjust = -35, color = "black", size = 4) +
+  annotate("text", x = med_credit_dis, y = 0, label = paste("Std Dev=", round(std_credit_dis, 2)), vjust = -33, hjust = 0.4, color = "black", size = 4)
+
+shapiro.test(data_tsibble$credit_dis_rs_mn)
+
+# Reject Null Hypothesis and conculde that Agric Credit Disbursement does not follow a normal distribution
+
+ggqqplot(data_tsibble$inp_out_ratio, title = "QQ Plot for Input Output Ratio", add = "qqline", color = "cyan")
+
+gghistogram(data_tsibble$inp_out_ratio, fill = "cyan", add = "median",title = "Histogram for Input to Out Ratio") +
+  annotate("text", x = med_input_output_ratio, y = 0, label = paste("Median =", round(med_input_output_ratio, 2)), vjust = -35, color = "black", size = 4) +
+  annotate("text", x = med_input_output_ratio, y = 0, label = paste("Std Dev=", round(std_input_output_ratio, 2)), vjust = -33, hjust = 0.5, color = "black", size = 4)
+
+shapiro.test(data_tsibble$inp_out_ratio)
+
+# Reject Null Hypothesis and conculde that Input to Output Ratio does not follow a normal distribution
+
+ggqqplot(data_tsibble$n_p_ratio, title = "QQ Plot for N/P ratio", add = "qqline", color = "pink")
+
+gghistogram(data_tsibble$n_p_ratio, fill = "pink", add = "median",title = "Histogram for Input to Output Ratio") +
+  annotate("text", x = med_np_ratio, y = 0, label = paste("Median =", round(med_np_ratio, 2)), vjust = -35, color = "black", size = 4) +
+  annotate("text", x = med_np_ratio, y = 0, label = paste("Std Dev=", round(std_np_ratio, 2)), vjust = -33, hjust = 0.5, color = "black", size = 4)
+
+shapiro.test(data_tsibble$n_p_ratio)
+
+# Reject Null Hypothesis and conculde that Input to Output Ratio does not follow a normal distribution
+
+ggqqplot(data_tsibble$tech_proxy, title = "QQ Plot for Technology Prox", add = "qqline", color = "orange")
+
+gghistogram(data_tsibble$tech_proxy, fill = "orange", add = "median",title = "Histogram for Tech Proxy") +
+  annotate("text", x = med_tech_proxy, y = 0, label = paste("Median =", round(med_tech_proxy, 2)), vjust = -35, color = "black", size = 4) +
+  annotate("text", x = med_np_ratio, y = 0, label = paste("Std Dev=", round(std_np_ratio, 2)), vjust = -33, hjust = -0.6, color = "black", size = 4)
+
+shapiro.test(data_tsibble$tech_proxy)
+
+# Reject Null Hypothesis and conculde that Tech Proxy Ratio does not follow a normal distribution
+
+# 6 out of 8 variables do not follow the normal distribution
+
+## Calculating the F-test
+
+## Calculate the two tailed test using F distribution
+# Extract the relevant columns
+x1 <- data_tsibble$nit_price_per_ton
+x2 <- data_tsibble$water_maf
+x3 <- data_tsibble$cr_area_mn_hec
+x4 <- data_tsibble$agric_gdp_usd_bn_cy
+x5 <- data_tsibble$credit_dis_rs_mn
+x6 <- data_tsibble$tech_proxy
+x7 <- data_tsibble$inp_out_ratio
+x8 <- data_tsibble$n_p_ratio
+
+# List of variables
+variables <- list(x1, x2, x3, x4, x5, x6, x7, x8)
+
+variable_names <- c("Price of Nitrogen", "Water Availability", "Cropped Acreage", 
+                    "Agric GDP Bn USD", "Agric Credit", "Tech Proxy", 
+                    "Input Output Ratio", "N/P Ratio")
+
+# Create an empty list to store results
+f_test_results <- list()
+
+# Perform pairwise F-tests for variance
+for (i in 1:(length(variables) - 1)) {
+  for (j in (i + 1):length(variables)) {
+    result <- var.test(variables[[i]], variables[[j]], alternative = "two.sided")
+    f_test_results[[paste(variable_names[i], "vs", variable_names[j])]] <- list(
+      "F-ratio" = result$estimate,
+      "F-statistic" = result$statistic,
+      "P-value" = result$p.value
+    )
+  }
+}
+
+
+# Display the results
+f_test_results
+
+# Initialize an empty matrix to store the F-ratios
+f_ratio_matrix <- matrix(1, nrow = length(variable_names), ncol = length(variable_names), dimnames = list(variable_names, variable_names))
+
+# Initialize an empty matrix to store the P-values
+p_value_matrix <- matrix(1, nrow = length(variable_names), ncol = length(variable_names), dimnames = list(variable_names, variable_names))
+
+# Fill the matrix with F-ratios from the pairwise tests
+for (i in 1:(length(variables) - 1)) {
+  for (j in (i + 1):length(variables)) {
+    f_ratio_matrix[i, j] <- f_test_results[[paste(variable_names[i], "vs", variable_names[j])]]$`F-ratio`
+    f_ratio_matrix[j, i] <- 1 / f_ratio_matrix[i, j]  # Inverse for the opposite pair
+  }  
+}
+
+# Fill the matrix with P-values from the pairwise tests
+for (i in 1:(length(variables) - 1)) {
+  for (j in (i + 1):length(variables)) {
+    p_value_matrix[i, j] <- f_test_results[[paste(variable_names[i], "vs", variable_names[j])]]$`P-value`
+    p_value_matrix[j, i] <- p_value_matrix[i, j]  # Symmetric pair
+  }  
+}
+
+# Combine F-ratio and P-value into a single data frame
+combined_df <- data.frame(
+  Row = variable_names,
+  sapply(1:length(variable_names), function(i) {
+    sapply(1:length(variable_names), function(j) {
+      paste0(
+        "F-ratio: ", round(f_ratio_matrix[i, j], 2), 
+        "\nP-value: ", round(p_value_matrix[i, j], 4)
+      )
+    })
+  })
+)
+
+# Create the gt table
+combined_gt_table <- gt(combined_df, rownames_to_stub = TRUE) %>%
+  tab_header(
+    title = "F-Ratio and P-Value Matrix"
+  ) %>%
+  fmt_markdown(
+    columns = everything()
+  )
+
+# Convert the f ratio matrix to a data frame 
+f_ratio_df <- as.data.frame(f_ratio_matrix)
+
+# Create the gt table
+f_ratio_gt_table <- gt(f_ratio_df, rownames_to_stub = TRUE) %>%
+  tab_header(
+    title = "F-Ratio Matrix"
+  ) %>%
+  fmt_number(
+    columns = everything(),
+    decimals = 2
+  )
+
+# Display the table
+print(f_ratio_gt_table)
+
+
+## Save the table
+gtsave(f_ratio_gt_table, "tables/f-ratio-table.docx")
+gtsave(combined_gt_table, "tables/f-ratio-p-table.docx")
+
+```
+
+
+### Correlation Table 
+
+#### Nominal Variables
+
+```{r}
+# Normal Variables
+
+nom_vars <- data_tsibble |>
+    select(
+        nit_price_per_ton ,
+        water_maf,
+        cr_area_mn_hec,
+        lag_agric_gdp_usd_bn_cy,
+        credit_dis_rs_mn ,
+        tech_proxy,
+        inp_out_ratio ,
+        n_p_ratio
+    )
+
+nom_vars <- nom_vars[, -ncol(nom_vars)]
+
+# Calculate the correlation matrix
+correlation_matrix <- cor(nom_vars, use = "pairwise.complete.obs")
+
+# Convert the correlation matrix to a data frame
+correlation_df <- as.data.frame(as.table(correlation_matrix))
+
+# Rename the columns for clarity
+
+# make the table wide
+correlation_wide <- correlation_df |>
+  pivot_wider(names_from = Var2, values_from = Freq)
+
+# Create the correlation table using gt
+# Create the correlation table using gt
+correlation_table <- correlation_wide %>%
+  gt() %>%
+  tab_header(
+    title = "Correlation Matrix",
+    subtitle = "Correlation coefficients for the variables"
+  ) |>
+  fmt_number(
+    decimals = 2
+  ) |>
+  tab_style(
+    style = list(
+      cell_fill(color = "lightgrey"),
+      cell_text(weight = "bold")
+    ),
+    locations = cells_title(groups = c("title", "subtitle"))
+  ) |>
+  tab_options(
+    table.font.size = 12,
+    column_labels.font.size = 14,
+    heading.align = "center",
+    table.align = "center",
+    table.border.top.color = "black",
+    table.border.bottom.color = "black",
+    table.border.top.width = px(2),
+    table.border.bottom.width = px(2)
+  ) |>
+  data_color(
+    columns = vars(-Var1),
+    colors = scales::col_bin(
+      bins = c(-Inf, -0.75, 0.75, Inf),
+      palette = c("red", "white", "white", "#FFCCCB")
+    )
+  )
+
+# Print the correlation table
+print(correlation_table)
+
+
+gtsave(correlation_table, "tables/correlation_table-nominal.docx")
+```
+
+
+#### Log Transformed Variables
+
+```{r}
+# Select the log-transformed variables
+log_vars <- data_tsibble |>
+  select(
+    lg_nit_price_per_ton,
+    lg_water_maf,
+    lg_cr_area_mn_hec,
+    lag_lg_agric_gdp_usd_bn_cy,
+    lg_credit_dis_rs_mn,
+    lg_tech_proxy,
+    lg_inp_out_ratio,
+    lg_n_p_ratio
+  )
+
+log_vars <- log_vars[, -ncol(log_vars)]
+
+# Calculate the correlation matrix for log-transformed variables
+log_correlation_matrix <- cor(log_vars, use = "pairwise.complete.obs")
+
+# Convert the correlation matrix to a data frame
+log_correlation_df <- as.data.frame(as.table(log_correlation_matrix))
+
+# Rename the columns for clarity
+log_correlation_df <- log_correlation_df |>
+  rename(
+    Var1 = Var1,
+    Var2 = Var2,
+    Correlation = Freq
+  )
+
+# Make the table wide
+log_correlation_wide <- log_correlation_df |>
+  pivot_wider(names_from = Var2, values_from = Correlation)
+
+# Create the correlation table using gt
+log_correlation_table <- log_correlation_wide |>
+  gt() |>
+  tab_header(
+    title = "Correlation Matrix (Log-Transformed Variables)",
+    subtitle = "Correlation coefficients for the log-transformed variables"
+  ) |>
+  fmt_number(
+    columns = vars(-Var1),
+    decimals = 2
+  ) |>
+  tab_style(
+    style = list(
+      cell_fill(color = "lightgrey"),
+      cell_text(weight = "bold")
+    ),
+    locations = cells_title(groups = c("title", "subtitle"))
+  ) |>
+  tab_options(
+    table.font.size = 12,
+    column_labels.font.size = 14,
+    heading.align = "center",
+    table.align = "center",
+    table.border.top.color = "black",
+    table.border.bottom.color = "black",
+    table.border.top.width = px(2),
+    table.border.bottom.width = px(2)
+  ) |>
+  data_color(
+    columns = vars(-Var1),
+    colors = scales::col_bin(
+      bins = c(-Inf, -0.75, 0.75, Inf),
+      palette = c("red", "white", "white", "#FFCCCB")
+    )
+  )
+
+# Print the table
+print(log_correlation_table)
+
+
+gtsave(log_correlation_table, "tables/correlation_table-log-transformed.docx")
+```
+
+### 6 Vars Model
+
+```{r}
+six_vars_model <- lm(
+    nit_vol_k_ton ~ nit_price_per_ton + 
+                    water_maf + 
+                    cr_area_mn_hec +
+                    lag_agric_gdp_usd_bn_cy +
+                    credit_dis_rs_mn +
+                    tech_proxy,
+                    data = data_tsibble
+        )
+
+
+print(summary(six_vars_model))
+
+# Calculating VIF
+vif_values <- vif(six_vars_model)
+
+# Calculate the ANOVA table for the model
+anova_results <- anova(six_vars_model)
+
+# Display the ANOVA table
+print(anova_results)
+```
+
+### 6 Vars Log Log Model
+
+```{r}
+six_vars_log_model <- lm(
+    lg_nit_vol_k_ton ~ lg_nit_price_per_ton + 
+                        lg_water_maf +
+                        lg_cr_area_mn_hec + 
+                        lag_lg_agric_gdp_usd_bn_cy + 
+                        lg_credit_dis_rs_mn +
+                        lg_tech_proxy,
+                        data = data_tsibble
+    )
+
+summary(six_vars_log_model) 
+
+# Calculating VIF
+vif_values <- vif(six_vars_log_model)
+
+# Calculate the ANOVA table for the model
+anova_results <- anova(six_vars_log_model)
+
+# Display the ANOVA table
+print(anova_results)
+
+
+```
+
+### 6 Vars Lin Log Model
+
+### 8 Vars Model
+
+```{r}
+eight_vars_model <- lm(
+    nit_vol_k_ton ~ nit_price_per_ton + 
+                    water_maf + 
+                    cr_area_mn_hec +
+                    lag_agric_gdp_usd_bn_cy +
+                    credit_dis_rs_mn +
+                    tech_proxy +
+                    inp_out_ratio +
+                    n_p_ratio,
+                    data = data_tsibble
+        )
+
+summary(eight_vars_model)
+
+# Calculating VIF
+vif_values <- vif(eight_vars_model)
+
+# Calculate the ANOVA table for the model
+anova_results <- anova(eight_vars_model)
+
+# Display the ANOVA table
+print(anova_results)
+
+```
+
+### 8 Vars Log Log Model
+
+```{r}
+eight_vars_log_model <- lm(
+    lg_nit_vol_k_ton ~ lg_nit_price_per_ton + 
+                        lg_water_maf +
+                        lg_cr_area_mn_hec + 
+                        lag_lg_agric_gdp_usd_bn_cy + 
+                        lg_credit_dis_rs_mn +
+                        lg_tech_proxy +
+                        lg_inp_out_ratio +
+                        lg_n_p_ratio,
+                        data = data_tsibble
+    )
+
+summary(eight_vars_log_model)
+
+# Calculating VIF
+vif_values <- vif(eight_vars_log_model)
+
+# Calculate the ANOVA table for the model
+anova_results <- anova(eight_vars_log_model)
+
+# Display the ANOVA table
+print(anova_results)
+```
+
+### 8 Vars Lin Log Model
