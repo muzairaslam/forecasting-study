@@ -5,6 +5,7 @@ format: html
 
 ```{r}
 library("tidyverse")
+library("ggpubr")
 library("fpp3")
 library("here")
 library("gt")
@@ -34,8 +35,9 @@ data_arranged <- data |>
         credit_dis_rs_mn = `Total Credit Disbursed (Rs million)`,
         inp_out_ratio = `Input Output Ratio`,
         n_p_ratio = `N / P`,
+        p_n_ratio = `P/N`,
         agric_employment = `Agriculture Employment (Mns)`,
-        pkr_per_usd = `PKR-USD`
+        pkr_per_usd = `PKR-USD`,
     ) |>
     mutate(
         lag_agric_gdp_usd_bn_cy = lag(agric_gdp_usd_bn_cy),
@@ -49,7 +51,8 @@ data_arranged <- data |>
         lag_lg_agric_gdp_usd_bn_cy = log(lag_agric_gdp_usd_bn_cy),
         lg_credit_dis_rs_mn = log(credit_dis_rs_mn),
         lg_inp_out_ratio = log(inp_out_ratio),
-        lg_n_p_ratio = log(inp_out_ratio),
+        lg_n_p_ratio = log(n_p_ratio),
+        lg_p_n_ratio = log(p_n_ratio),
         lg_tech_proxy = log(tech_proxy)
     ) |> 
     slice_tail(n = 29)
@@ -77,6 +80,9 @@ std_water_maf <- sd(data_tsibble$water_maf)
 med_cr_area_mn_hec <- median(data_tsibble$cr_area_mn_hec)
 std_cr_area_mn_hec <- sd(data_tsibble$cr_area_mn_hec)
 
+med_agric_gdp <- median(data_tsibble$agric_gdp_usd_bn_cy)
+std_agric_gdp <- sd(data_tsibble$agric_gdp_usd_bn_cy)
+
 med_lag_agric_gdp <- median(data_tsibble$lag_agric_gdp_usd_bn_cy)
 std_lag_agric_gdp <- sd(data_tsibble$lag_agric_gdp_usd_bn_cy)
 
@@ -88,6 +94,9 @@ std_tech_proxy <- sd(data_tsibble$tech_proxy)
 
 med_np_ratio <- median(data_tsibble$n_p_ratio)
 std_np_ratio <- sd(data_tsibble$n_p_ratio)
+
+med_pn_ratio <- median(data_tsibble$p_n_ratio)
+std_pn_ratio <- sd(data_tsibble$p_n_ratio)
 
 med_input_output_ratio <- median(data_tsibble$inp_out_ratio)
 std_input_output_ratio <- sd(data_tsibble$inp_out_ratio)
@@ -116,6 +125,9 @@ std_lg_inp_out_ratio <- sd(data_tsibble$lg_inp_out_ratio)
 
 med_lg_n_p_ratio <- median(data_tsibble$lg_n_p_ratio)
 std_lg_n_p_ratio <- sd(data_tsibble$lg_n_p_ratio)
+
+med_lg_p_n_ratio <- median(data_tsibble$lg_p_n_ratio)
+std_lg_p_n_ratio <- sd(data_tsibble$lg_p_n_ratio)
 
 med_lg_tech_proxy <- median(data_tsibble$lg_tech_proxy)
 std_lg_tech_proxy <- sd(data_tsibble$lg_tech_proxy)
@@ -163,9 +175,208 @@ x7 = Input Output Ratio
 x8 = N/P Ratio
 
 
-### F Statistics
+### F Ratio Analysis
 
 ```{r}
+## Following assumptions are made for Two Standard Dev F test
+## Assumptions
+## 1. Simple random samples
+## 2. Independent samples
+## 3. Normal populations
+
+## Make normality plots for all the variables
+
+ggqqplot(data_tsibble$nit_vol_k_ton, title = "QQ Plot for Nitrogen Consumption Per Ton", add = "qqline")
+
+gghistogram(data_tsibble$nit_vol_k_ton, fill = "brown", add = "median",title = "Histogram for Nitrogen Consumption Per Ton") +
+  annotate("text", x = med_vol_nit, y = 0, label = paste("Median =", round(med_vol_nit, 2)), vjust = -35, color = "black", size = 4) +
+  annotate("text", x = med_vol_nit, y = 0, label = paste("Std Dev=", round(std_vol_nit, 2)), vjust = -33, color = "black", size = 4)
+
+shapiro.test(data_tsibble$nit_vol_k_ton)
+
+# Do not Reject Null Hypothesis and conculde that Nit Vol K Ton does follow a normal distribution
+
+ggqqplot(data_tsibble$nit_price_per_ton, title = "QQ Plot for Nitrogen Price Per Ton", add = "qqline")
+
+gghistogram(data_tsibble$nit_price_per_ton, fill = "red", add = "median",title = "Histogram for Nitrogen Price Per Ton") +
+  annotate("text", x = med_price_nit, y = 0, label = paste("Median =", round(med_price_nit, 2)), vjust = -35, color = "black", size = 4) +
+  annotate("text", x = med_price_nit, y = 0, label = paste("Std Dev=", round(std_price_nit, 2)), vjust = -33, hjust = 0.5, color = "black", size = 4)
+
+shapiro.test(data_tsibble$nit_price_per_ton)
+
+# Reject Null Hypothesis and conculde that Nit Price Per ton does not follow a normal distribution
+
+ggqqplot(data_tsibble$water_maf, title = "QQ Plot for Water MAF", add = "qqline", color = "blue")
+
+gghistogram(data_tsibble$water_maf, fill = "blue", add = "median",title = "Histogram for for Water MAF") +
+  annotate("text", x = med_water_maf, y = 0, label = paste("Median =", round(med_water_maf, 2)), vjust = -35, color = "black", size = 4) +
+  annotate("text", x = med_water_maf, y = 0, label = paste("Std Dev=", round(std_water_maf, 2)), vjust = -33, hjust = 0.4, color = "black", size = 4)
+
+shapiro.test(data_tsibble$water_maf)
+
+ggqqplot(data_tsibble$cr_area_mn_hec, title = "QQ Plot for Cropped Accreage", add = "qqline")
+
+gghistogram(data_tsibble$cr_area_mn_hec, fill = "green", add = "median",title = "Histogram for Cropped Accreage") +
+  annotate("text", x = med_cr_area_mn_hec, y = 0, label = paste("Median =", round(med_cr_area_mn_hec, 2)), vjust = -35, color = "black", size = 4) +
+  annotate("text", x = med_cr_area_mn_hec, y = 0, label = paste("Std Dev=", round(std_cr_area_mn_hec, 2)), vjust = -33, hjust = 0.5, color = "black", size = 4)
+
+shapiro.test(data_tsibble$cr_area_mn_hec)
+
+ggqqplot(data_tsibble$agric_gdp_usd_bn_cy, title = "QQ Plot for Agric GDP USD Bn Cy", add = "qqline", color = "yellow")
+
+gghistogram(data_tsibble$agric_gdp_usd_bn_cy, fill = "yellow", add = "median",title = "Histogram for Agric GDP USD Bn") +
+  annotate("text", x = med_agric_gdp, y = 0, label = paste("Median =", round(med_agric_gdp, 2)), vjust = -35, color = "black", size = 4) +
+  annotate("text", x = med_agric_gdp, y = 0, label = paste("Std Dev=", round(std_agric_gdp, 2)), vjust = -33, hjust = 0.5, color = "black", size = 4)
+
+shapiro.test(data_tsibble$agric_gdp_usd_bn_cy)
+
+# Reject Null Hypothesis and conculde that Agric GDP USD Bn ton does not follow a normal distribution
+
+ggqqplot(data_tsibble$credit_dis_rs_mn, title = "QQ Plot for Agric Credit Disbursement", add = "qqline", color = "purple")
+
+gghistogram(data_tsibble$credit_dis_rs_mn, fill = "purple", add = "median",title = "Histogram for Agric GDP USD Bn") +
+  annotate("text", x = med_credit_dis, y = 0, label = paste("Median =", round(med_credit_dis, 2)), vjust = -35, color = "black", size = 4) +
+  annotate("text", x = med_credit_dis, y = 0, label = paste("Std Dev=", round(std_credit_dis, 2)), vjust = -33, hjust = 0.4, color = "black", size = 4)
+
+shapiro.test(data_tsibble$credit_dis_rs_mn)
+
+# Reject Null Hypothesis and conculde that Agric Credit Disbursement does not follow a normal distribution
+
+ggqqplot(data_tsibble$inp_out_ratio, title = "QQ Plot for Input Output Ratio", add = "qqline", color = "cyan")
+
+gghistogram(data_tsibble$inp_out_ratio, fill = "cyan", add = "median",title = "Histogram for Input to Out Ratio") +
+  annotate("text", x = med_input_output_ratio, y = 0, label = paste("Median =", round(med_input_output_ratio, 2)), vjust = -35, color = "black", size = 4) +
+  annotate("text", x = med_input_output_ratio, y = 0, label = paste("Std Dev=", round(std_input_output_ratio, 2)), vjust = -33, hjust = 0.5, color = "black", size = 4)
+
+shapiro.test(data_tsibble$inp_out_ratio)
+
+# Reject Null Hypothesis and conculde that Input to Output Ratio does not follow a normal distribution
+
+ggqqplot(data_tsibble$n_p_ratio, title = "QQ Plot for N/P ratio", add = "qqline", color = "pink")
+
+gghistogram(data_tsibble$n_p_ratio, fill = "pink", add = "median",title = "Histogram for Input to Output Ratio") +
+  annotate("text", x = med_np_ratio, y = 0, label = paste("Median =", round(med_np_ratio, 2)), vjust = -35, color = "black", size = 4) +
+  annotate("text", x = med_np_ratio, y = 0, label = paste("Std Dev=", round(std_np_ratio, 2)), vjust = -33, hjust = 0.5, color = "black", size = 4)
+
+shapiro.test(data_tsibble$n_p_ratio)
+
+# Reject Null Hypothesis and conculde that Input to Output Ratio does not follow a normal distribution
+
+ggqqplot(data_tsibble$tech_proxy, title = "QQ Plot for Technology Prox", add = "qqline", color = "orange")
+
+gghistogram(data_tsibble$tech_proxy, fill = "orange", add = "median",title = "Histogram for Tech Proxy") +
+  annotate("text", x = med_tech_proxy, y = 0, label = paste("Median =", round(med_tech_proxy, 2)), vjust = -35, color = "black", size = 4) +
+  annotate("text", x = med_np_ratio, y = 0, label = paste("Std Dev=", round(std_np_ratio, 2)), vjust = -33, hjust = -0.6, color = "black", size = 4)
+
+shapiro.test(data_tsibble$tech_proxy)
+
+# Reject Null Hypothesis and conculde that Tech Proxy Ratio does not follow a normal distribution
+
+# 6 out of 8 variables do not follow the normal distribution
+
+## Calculating the F-test
+
+## Calculate the two tailed test using F distribution
+# Extract the relevant columns
+x1 <- data_tsibble$nit_price_per_ton
+x2 <- data_tsibble$water_maf
+x3 <- data_tsibble$cr_area_mn_hec
+x4 <- data_tsibble$agric_gdp_usd_bn_cy
+x5 <- data_tsibble$credit_dis_rs_mn
+x6 <- data_tsibble$tech_proxy
+x7 <- data_tsibble$inp_out_ratio
+x8 <- data_tsibble$n_p_ratio
+
+# List of variables
+variables <- list(x1, x2, x3, x4, x5, x6, x7, x8)
+
+variable_names <- c("Price of Nitrogen", "Water Availability", "Cropped Acreage", 
+                    "Agric GDP Bn USD", "Agric Credit", "Tech Proxy", 
+                    "Input Output Ratio", "N/P Ratio")
+
+# Create an empty list to store results
+f_test_results <- list()
+
+# Perform pairwise F-tests for variance
+for (i in 1:(length(variables) - 1)) {
+  for (j in (i + 1):length(variables)) {
+    result <- var.test(variables[[i]], variables[[j]], alternative = "two.sided")
+    f_test_results[[paste(variable_names[i], "vs", variable_names[j])]] <- list(
+      "F-ratio" = result$estimate,
+      "F-statistic" = result$statistic,
+      "P-value" = result$p.value
+    )
+  }
+}
+
+
+# Display the results
+f_test_results
+
+# Initialize an empty matrix to store the F-ratios
+f_ratio_matrix <- matrix(1, nrow = length(variable_names), ncol = length(variable_names), dimnames = list(variable_names, variable_names))
+
+# Initialize an empty matrix to store the P-values
+p_value_matrix <- matrix(1, nrow = length(variable_names), ncol = length(variable_names), dimnames = list(variable_names, variable_names))
+
+# Fill the matrix with F-ratios from the pairwise tests
+for (i in 1:(length(variables) - 1)) {
+  for (j in (i + 1):length(variables)) {
+    f_ratio_matrix[i, j] <- f_test_results[[paste(variable_names[i], "vs", variable_names[j])]]$`F-ratio`
+    f_ratio_matrix[j, i] <- 1 / f_ratio_matrix[i, j]  # Inverse for the opposite pair
+  }  
+}
+
+# Fill the matrix with P-values from the pairwise tests
+for (i in 1:(length(variables) - 1)) {
+  for (j in (i + 1):length(variables)) {
+    p_value_matrix[i, j] <- f_test_results[[paste(variable_names[i], "vs", variable_names[j])]]$`P-value`
+    p_value_matrix[j, i] <- p_value_matrix[i, j]  # Symmetric pair
+  }  
+}
+
+# Combine F-ratio and P-value into a single data frame
+combined_df <- data.frame(
+  Row = variable_names,
+  sapply(1:length(variable_names), function(i) {
+    sapply(1:length(variable_names), function(j) {
+      paste0(
+        "F-ratio: ", round(f_ratio_matrix[i, j], 2), 
+        "\nP-value: ", round(p_value_matrix[i, j], 4)
+      )
+    })
+  })
+)
+
+# Create the gt table
+combined_gt_table <- gt(combined_df, rownames_to_stub = TRUE) %>%
+  tab_header(
+    title = "F-Ratio and P-Value Matrix"
+  ) %>%
+  fmt_markdown(
+    columns = everything()
+  )
+
+# Convert the f ratio matrix to a data frame 
+f_ratio_df <- as.data.frame(f_ratio_matrix)
+
+# Create the gt table
+f_ratio_gt_table <- gt(f_ratio_df, rownames_to_stub = TRUE) %>%
+  tab_header(
+    title = "F-Ratio Matrix"
+  ) %>%
+  fmt_number(
+    columns = everything(),
+    decimals = 2
+  )
+
+# Display the table
+print(f_ratio_gt_table)
+
+
+## Save the table
+gtsave(f_ratio_gt_table, "tables/f-ratio-table.docx")
+gtsave(combined_gt_table, "tables/f-ratio-p-table.docx")
 
 ```
 
@@ -339,14 +550,20 @@ six_vars_model <- lm(
                     data = data_tsibble
         )
 
-summary(six_vars_model) 
+
+print(summary(six_vars_model))
 
 # Calculating VIF
 vif_values <- vif(six_vars_model)
-vif_values
+
+# Calculate the ANOVA table for the model
+anova_results <- anova(six_vars_model)
+
+# Display the ANOVA table
+print(anova_results)
 ```
 
-### 6 Vars Log Model
+### 6 Vars Log Log Model
 
 ```{r}
 six_vars_log_model <- lm(
@@ -363,8 +580,17 @@ summary(six_vars_log_model)
 
 # Calculating VIF
 vif_values <- vif(six_vars_log_model)
-vif_values
+
+# Calculate the ANOVA table for the model
+anova_results <- anova(six_vars_log_model)
+
+# Display the ANOVA table
+print(anova_results)
+
+
 ```
+
+### 6 Vars Lin Log Model
 
 ### 8 Vars Model
 
@@ -385,10 +611,16 @@ summary(eight_vars_model)
 
 # Calculating VIF
 vif_values <- vif(eight_vars_model)
-vif_values
+
+# Calculate the ANOVA table for the model
+anova_results <- anova(eight_vars_model)
+
+# Display the ANOVA table
+print(anova_results)
+
 ```
 
-### 8 Vars Log Model
+### 8 Vars Log Log Model
 
 ```{r}
 eight_vars_log_model <- lm(
@@ -398,7 +630,8 @@ eight_vars_log_model <- lm(
                         lag_lg_agric_gdp_usd_bn_cy + 
                         lg_credit_dis_rs_mn +
                         lg_tech_proxy +
-                        lg_inp_out_ratio,
+                        lg_inp_out_ratio +
+                        lg_n_p_ratio,
                         data = data_tsibble
     )
 
@@ -406,5 +639,12 @@ summary(eight_vars_log_model)
 
 # Calculating VIF
 vif_values <- vif(eight_vars_log_model)
-vif_values    
+
+# Calculate the ANOVA table for the model
+anova_results <- anova(eight_vars_log_model)
+
+# Display the ANOVA table
+print(anova_results)
 ```
+
+### 8 Vars Lin Log Model
