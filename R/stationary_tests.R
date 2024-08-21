@@ -194,7 +194,7 @@ print(adf_result)
 sink()
 
 # Define the variable name
-variable_name <- "N / P Ratio"
+variable_name <- "N-P Ratio"
 
 # Create and save the plot
 p <- ggplot(data_tsibble, aes(x = fis_yr, y = n_p_ratio)) +

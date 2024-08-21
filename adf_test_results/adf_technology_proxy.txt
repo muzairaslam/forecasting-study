@@ -1,0 +1,7 @@
+
+	Augmented Dickey-Fuller Test
+
+data:  na.omit(data_tsibble$tech_proxy)
+Dickey-Fuller = -0.84157, Lag order = 3, p-value = 0.9447
+alternative hypothesis: stationary
+
