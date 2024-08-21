@@ -1,0 +1,7 @@
+
+	Augmented Dickey-Fuller Test
+
+data:  na.omit(data_tsibble$nit_price_per_ton)
+Dickey-Fuller = -2.6582, Lag order = 3, p-value = 0.3207
+alternative hypothesis: stationary
+

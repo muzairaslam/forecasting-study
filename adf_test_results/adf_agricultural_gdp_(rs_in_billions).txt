@@ -1,0 +1,7 @@
+
+	Augmented Dickey-Fuller Test
+
+data:  na.omit(data_tsibble$agric_gdp_rs_bn)
+Dickey-Fuller = -0.037507, Lag order = 3, p-value = 0.99
+alternative hypothesis: stationary
+

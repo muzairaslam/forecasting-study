@@ -1,0 +1,7 @@
+
+	Augmented Dickey-Fuller Test
+
+data:  diff_variable
+Dickey-Fuller = -3.7503, Lag order = 2, p-value = 0.03892
+alternative hypothesis: stationary
+

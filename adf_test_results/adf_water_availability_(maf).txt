@@ -1,0 +1,7 @@
+
+	Augmented Dickey-Fuller Test
+
+data:  na.omit(data_tsibble$water_maf)
+Dickey-Fuller = -0.68476, Lag order = 3, p-value = 0.9601
+alternative hypothesis: stationary
+
