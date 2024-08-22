@@ -5,12 +5,14 @@ format: html
 
 ```{r}
 library("tidyverse")
+library("fabletools")
 library("ggpubr")
 library("fpp3")
 library("here")
 library("gt")
 library("gtsummary")
 library("car")
+library("lmtest")
 options(scipen = 10)  # Temporarily increase penalty for scientific notation
 set.seed(1)         # for reproduciblity
 ```
@@ -537,6 +539,42 @@ print(log_correlation_table)
 gtsave(log_correlation_table, "tables/correlation_table-log-transformed.docx")
 ```
 
+## Regression Analysis
+
+Before moving to regression analysis, let's make some time series plots to understand the data better.
+
+
+```{r}
+complete_vars <- data_tsibble |>
+  select(
+    nit_vol_k_ton,
+    nit_price_per_ton ,
+    water_maf,
+    cr_area_mn_hec,
+    lag_agric_gdp_usd_bn_cy,
+    credit_dis_rs_mn ,
+    tech_proxy,
+    inp_out_ratio ,
+    n_p_ratio)
+
+
+complete_vars |>
+  pivot_longer(cols = -fis_yr, names_to = "Variable", values_to = "Value") |>
+  ggplot(aes(x = fis_yr, y = Value, colour = Variable)) +
+  geom_line() +
+  geom_point() +
+  facet_grid(Variable ~ ., scales = "free_y") +
+  guides(colour = "none") +
+  labs(x = "Fiscal Year", y = "Value", title = "Time Series Plot of All Variables") +
+  scale_x_continuous(breaks = seq(min(complete_vars$fis_yr), max(complete_vars$fis_yr), by = 5)) + 
+  theme(
+    strip.text.y = element_text(size = 10, angle = 0),  # Adjust the size and angle of facet labels
+    strip.background = element_blank(),  # Remove the background to make it cleaner
+    panel.spacing = unit(1, "lines")  # Add more space between facets
+  )
+
+```
+
 ### 6 Vars Model
 
 ```{r}
@@ -550,18 +588,135 @@ six_vars_model <- lm(
                     data = data_tsibble
         )
 
-
 print(summary(six_vars_model))
 
-# Calculating VIF
+# Calculate VIF
 vif_values <- vif(six_vars_model)
 
 # Calculate the ANOVA table for the model
 anova_results <- anova(six_vars_model)
 
-# Display the ANOVA table
-print(anova_results)
+# Extract residuals and fitted values from the linear model
+residuals_df <- data.frame(
+  Fiscal_Year = data_tsibble$fis_yr, 
+  Residuals = residuals(six_vars_model),
+  Fitted_Values = six_vars_model$fitted.values,
+  Historic_Values = data_tsibble$nit_vol_k_ton
+)
+
+median_resid <- median(residuals_df$Residuals)
+sd_resid <- sd(residuals_df$Residuals)
+
+# Add columns for ±1 and ±2 standard deviations around the fitted values
+residuals_df <- residuals_df |>
+  mutate(
+    Fitted_Values_Plus_1SD = Fitted_Values + sd_resid,
+    Fitted_Values_Minus_1SD = Fitted_Values - sd_resid,
+    Fitted_Values_Plus_2SD = Fitted_Values + 2 * sd_resid,
+    Fitted_Values_Minus_2SD = Fitted_Values - 2 * sd_resid
+  )
+
+# Plot residuals
+resid_over_time <- ggplot(residuals_df, aes(x = Fiscal_Year, y = Residuals)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Residuals over Time", x = "Fiscal Year", y = "Residuals") +
+  scale_x_continuous(breaks = seq(min(residuals_df$Fiscal_Year), max(residuals_df$Fiscal_Year), by = 5)) 
+
+
+# ACF plot
+resid_acf <- acf(residuals_df$Residuals, main="ACF Plot of Model Residuals")
+
+# Residual Histograms
+resid_hist <- gghistogram(residuals_df$Residuals, fill = "brown", add = "median",title = "Histogram for Residual Errors") + 
+  annotate("text", x = median_resid, y = 0, label = paste("Median =", round(median_resid, 2)), vjust = -35, color = "black", size = 4) +
+  annotate("text", x = median_resid, y = 0, label = paste("Std Dev=", round(sd_resid, 2)), vjust = -33, hjust = 0.5, color = "black", size = 4)
+
+# Conduct Normality check
+shapiro.test(residuals_df$Residuals)
+
+# Durbin Watson Test for Autocorrelation tests
+
+durbinWatsonTest(six_vars_model)
+
+# White Test for hetroscedacity 
+
+white_test <- bptest(
+    six_vars_model,
+    ~ fitted.values(six_vars_model) + I(fitted.values(six_vars_model)^2)
+)
+
+# Print the result
+print(white_test)
+
+# Create a Residuals vs. Fitted Values plot
+plot(six_vars_model, which = 1)
+
+# Create a QQ-plot of residuals
+plot(six_vars_model, which = 2)
+
+# Create a Scale-Location plot Spread-Location plot or sqrt(residuals) vs. fitted values plot
+# It is designed to check the assumption of homoscedasticity: residuals (errors) of the model have constant variance across all levels of the independent variables.
+plot(six_vars_model, which = 3)
+
+# Create Cook's distance plot
+plot(six_vars_model, which = 4)
+
+# Create a Residuals vs. Leverage plot: to identify influential data points and assess the influence of observations on the regression model
+plot(six_vars_model, which = 5)
+
+# Line of Best Fit
+best_fit_plot <- ggplot(residuals_df, aes(x = Fiscal_Year)) +
+  geom_line(aes(y = Historic_Values, color = "Actual Values"), size = 1) +  # Plot historic values
+  geom_point(aes(y = Historic_Values, color = "Actual Values"), size = 2) +
+  geom_line(aes(y = Fitted_Values, color = "Fitted Values"), size = 1, linetype = "dashed") +  # Plot fitted values (line of best fit)
+   geom_point(aes(y = Fitted_Values, color = "Fitted Values"), size = 2) +  # Add points for fitted values
+  geom_ribbon(aes(ymin = Fitted_Values_Minus_1SD, ymax = Fitted_Values_Plus_1SD), fill = "orange", alpha = 0.2) +  # 1 SD band
+  geom_ribbon(aes(ymin = Fitted_Values_Minus_2SD, ymax = Fitted_Values_Plus_2SD), fill = "yellow", alpha = 0.2) +  # 2 SD band
+  labs(title = "Actual vs. Fitted Values with ±1 and ±2 Standard Deviations",
+       x = "Fiscal Year",
+       y = "Nitrogen Volume K Ton") +
+  scale_x_continuous(breaks = seq(min(residuals_df$Fiscal_Year), max(residuals_df$Fiscal_Year), by = 2)) + 
+  scale_color_manual(values = c("Actual Values" = "blue", "Fitted Values" = "red")) +  # Set custom colors
+  theme(plot.title = element_text(hjust = 0.5))  # Center the plot title
+
+# Save all the plots
+
+ggsave("visualization/model-diagnoistics-6-vars/resid_over_time.png", plot = resid_over_time, width = 942/72, height = 850/72)
+
+ggsave("visualization/model-diagnoistics-6-vars/resid_over_time.png", plot = resid_over_time, width = 942/72, height = 850/72)
+
+ggsave("visualization/model-diagnoistics-6-vars/resid_hist.png", plot = resid_hist, width = 942/72, height = 850/72)
+
+ggsave("visualization/model-diagnoistics-6-vars/best_fit_plot.png", plot = best_fit_plot, width = 942/72, height = 850/72)
+
+
 ```
+
+1. These graphs show that the model produces forecasts that does not appear to account for all available information. The mean of the residuals is not close to zero and the residuals range between -250 to 250.
+
+2. The errors are normally distributed in the histogram. W = 0.98007, p-value = 0.84 from Shapiro Wilk test shows that we fail to reject the null hypothesis (The data is normally distributed). It means that there is no significant evidence to suggest that the residuals are not normally distributed. The QQ-plot checks whether the residuals are normally distributed, which is related to the homoscedasticity assumption. Points should lie roughly along the 45-degree line.
+
+3. There is no significant correlation in the residuals series from ACF plot. Using Durbin Watson a value close to 2 suggests no autocorrelation. Value significantly lower than 2 indicate positive autocorrelation. Values significantly higher than 2 indicate negative autocorrelation. The test indicates that it is considering the autocorrelation at lag 1, meaning it is checking whether the residuals at time t are correlated with the residuals at time t−1. -0.183 suggests a weak negative correlation between the residuals at time t and time t−1. A negative value indicates that when one residual is above the mean, the next is likely to be below the mean, though the effect here is not strong. 2.236 is slightly above 2, which indicates a very weak negative autocorrelation, consistent with the autocorrelation coefficient. Here, p = 0.792 is quite high, meaning that the test does not find significant autocorrelation at lag 1. The null hypothesis (that there is no autocorrelation) cannot be rejected.
+
+4. Comment on Heteroscedasticity:
+Heteroscedasticity occurs when the variance of the errors (residuals) in a regression model is not constant across all levels of the independent variables. This violates one of the key assumptions of ordinary least squares (OLS) regression, where the residuals should have constant variance (homoscedasticity).
+The White test checks whether the variance of the residuals from a regression model is dependent on the values of the independent variables. If the test indicates heteroscedasticity, it suggests that the standard errors, confidence intervals, and hypothesis tests from the regression might be unreliable.
+
+~ fitted.values(model): This component checks for heteroscedasticity that is linearly related to the fitted values of the model, as in the Breusch-Pagan test.
++ I(fitted.values(model)^2): Adding the square of the fitted values allows the test to detect non-linear forms of heteroscedasticity. This inclusion turns the test into a more general form of heteroscedasticity detection, similar to the White test.
+
+Null (H0): Homoscedasticity is present.
+Alternative (HA): Heteroscedasticity is present.
+
+In our case, the p-value > 0.05, so we do not reject the null hypothesis and conclude that our errors are Homoscedastic. 
+
+5. Comment on Influential Data Points:
+Cook's Distance is a measure used in regression analysis to identify influential data points. Specifically, it helps to determine how much an individual data point affects the overall regression model's fitted values. It combines information on both the leverage of the data point (how far the predictor variable values are from the mean of the predictor variables) and the residual (the difference between the observed and fitted values). Some texts mention that threshold > 1 is considered influential while other texts give threshold of 4/N. If we use 4/N so our thershold will be 4/29 ~ 0.14. Using this as our bench mark, we see that years 2015, 2019 and 2021 are values that are substantially larger than the rest.
+
+6. Comment on Model Fitness:
+The R2 of the function is 0.90 which shows that the insample fitting is good. Most of the values of the model lie between 1 Standard Deviation with the exception of 2016 and 2017. Overall the model seems to fit the actual values well by the plot.
+
 
 ### 6 Vars Log Log Model
 
@@ -584,13 +739,36 @@ vif_values <- vif(six_vars_log_model)
 # Calculate the ANOVA table for the model
 anova_results <- anova(six_vars_log_model)
 
-# Display the ANOVA table
-print(anova_results)
 
 
 ```
 
 ### 6 Vars Lin Log Model
+
+```{r}
+six_vars_lin_log_model <- lm(
+  nit_vol_k_ton ~ lg_nit_price_per_ton + 
+                  lg_water_maf +
+                  lg_cr_area_mn_hec + 
+                  lag_lg_agric_gdp_usd_bn_cy + 
+                  lg_credit_dis_rs_mn +
+                  lg_tech_proxy,
+                  data = data_tsibble
+    )
+
+summary(six_vars_lin_log_model) 
+
+# Calculating VIF
+vif_values <- vif(six_vars_lin_log_model)
+
+# Calculate the ANOVA table for the model
+anova_results <- anova(six_vars_lin_log_model)
+
+# Display the ANOVA table
+print(anova_results)
+```
+
+
 
 ### 8 Vars Model
 
@@ -648,3 +826,29 @@ print(anova_results)
 ```
 
 ### 8 Vars Lin Log Model
+
+
+```{r}
+eight_vars_lin_log_model <- lm(
+    nit_vol_k_ton ~ lg_nit_price_per_ton + 
+                        lg_water_maf +
+                        lg_cr_area_mn_hec + 
+                        lag_lg_agric_gdp_usd_bn_cy + 
+                        lg_credit_dis_rs_mn +
+                        lg_tech_proxy +
+                        lg_inp_out_ratio +
+                        lg_n_p_ratio,
+                        data = data_tsibble
+    )
+
+summary(eight_vars_lin_log_model)
+
+# Calculating VIF
+vif_values <- vif(eight_vars_lin_log_model)
+
+# Calculate the ANOVA table for the model
+anova_results <- anova(eight_vars_lin_log_model)
+
+# Display the ANOVA table
+print(anova_results)
+```
