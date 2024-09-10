@@ -20,7 +20,7 @@ set.seed(1)
 
 
 ```{r}
-data <- read_csv(here("data/data-consolidated-3.csv"))
+data <- read_csv(here("data/data-consolidated-2.csv"))
 ```
 
 
@@ -61,7 +61,7 @@ data_arranged <- data |>
         lg_p_n_ratio = log(p_n_ratio),
         lg_tech_proxy = log(tech_proxy)
     ) |> 
-    slice_tail(n = 28)
+    slice_tail(n = 29)
 
 data_arranged$fis_yr <- as.integer(data_arranged$fis_yr)
 data_arranged$no <- as.integer(data_arranged$no)
@@ -72,100 +72,6 @@ data_tsibble <- data_arranged |>
 ```
 
 
-```{r}
-med_price_nit <- median(data_tsibble$nit_price_per_ton)
-std_price_nit <- sd(data_tsibble$nit_price_per_ton)
-
-med_vol_nit <- median(data_tsibble$nit_vol_k_ton)
-std_vol_nit <- sd(data_tsibble$nit_vol_k_ton)
-
-med_water_maf <- median(data_tsibble$water_maf)
-std_water_maf <- sd(data_tsibble$water_maf)
-
-med_cr_area_mn_hec <- median(data_tsibble$cr_area_mn_hec)
-std_cr_area_mn_hec <- sd(data_tsibble$cr_area_mn_hec)
-
-med_agric_gdp <- median(data_tsibble$agric_gdp_usd_bn_cy)
-std_agric_gdp <- sd(data_tsibble$agric_gdp_usd_bn_cy)
-
-med_lag_agric_gdp <- median(data_tsibble$lag_agric_gdp_usd_bn_cy)
-std_lag_agric_gdp <- sd(data_tsibble$lag_agric_gdp_usd_bn_cy)
-
-med_credit_dis <- median(data_tsibble$credit_dis_rs_mn)
-std_credit_dis <- sd(data_tsibble$credit_dis_rs_mn)
-
-med_tech_proxy <- median(data_tsibble$tech_proxy)
-std_tech_proxy <- sd(data_tsibble$tech_proxy)
-
-med_np_ratio <- median(data_tsibble$n_p_ratio)
-std_np_ratio <- sd(data_tsibble$n_p_ratio)
-
-med_pn_ratio <- median(data_tsibble$p_n_ratio)
-std_pn_ratio <- sd(data_tsibble$p_n_ratio)
-
-med_input_output_ratio <- median(data_tsibble$inp_out_ratio)
-std_input_output_ratio <- sd(data_tsibble$inp_out_ratio)
-
-# Compute medians and standard deviations for log-transformed variables
-med_lg_nit_vol_k_ton <- median(data_tsibble$lg_nit_vol_k_ton)
-std_lg_nit_vol_k_ton <- sd(data_tsibble$lg_nit_vol_k_ton)
-
-med_lg_nit_price_per_ton <- median(data_tsibble$lg_nit_price_per_ton)
-std_lg_nit_price_per_ton <- sd(data_tsibble$lg_nit_price_per_ton)
-
-med_lg_water_maf <- median(data_tsibble$lg_water_maf)
-std_lg_water_maf <- sd(data_tsibble$lg_water_maf)
-
-med_lg_cr_area_mn_hec <- median(data_tsibble$lg_cr_area_mn_hec)
-std_lg_cr_area_mn_hec <- sd(data_tsibble$lg_cr_area_mn_hec)
-
-med_lag_lg_agric_gdp_usd_bn_cy <- median(data_tsibble$lag_lg_agric_gdp_usd_bn_cy)
-std_lag_lg_agric_gdp_usd_bn_cy <- sd(data_tsibble$lag_lg_agric_gdp_usd_bn_cy)
-
-med_lg_credit_dis_rs_mn <- median(data_tsibble$lg_credit_dis_rs_mn)
-std_lg_credit_dis_rs_mn <- sd(data_tsibble$lg_credit_dis_rs_mn)
-
-med_lg_inp_out_ratio <- median(data_tsibble$lg_inp_out_ratio)
-std_lg_inp_out_ratio <- sd(data_tsibble$lg_inp_out_ratio)
-
-med_lg_n_p_ratio <- median(data_tsibble$lg_n_p_ratio)
-std_lg_n_p_ratio <- sd(data_tsibble$lg_n_p_ratio)
-
-med_lg_p_n_ratio <- median(data_tsibble$lg_p_n_ratio)
-std_lg_p_n_ratio <- sd(data_tsibble$lg_p_n_ratio)
-
-med_lg_tech_proxy <- median(data_tsibble$lg_tech_proxy)
-std_lg_tech_proxy <- sd(data_tsibble$lg_tech_proxy)
-
-# Combine the results into a data frame
-summary_stats <- data.frame(
-  variable = c(
-    "nit_price_per_ton", "nit_vol_k_ton", "water_maf", "cr_area_mn_hec",
-    "lag_agric_gdp_usd_bn_cy", "credit_dis_rs_mn", "tech_proxy", "n_p_ratio",
-    "input_output_ratio", "lg_nit_vol_k_ton", "lg_nit_price_per_ton",
-    "lg_water_maf", "lg_cr_area_mn_hec", "lag_lg_agric_gdp_usd_bn_cy",
-    "lg_credit_dis_rs_mn", "lg_inp_out_ratio", "lg_n_p_ratio", "lg_tech_proxy"
-  ),
-  median = c(
-    med_price_nit, med_vol_nit, med_water_maf, med_cr_area_mn_hec,
-    med_lag_agric_gdp, med_credit_dis, med_tech_proxy, med_np_ratio,
-    med_input_output_ratio, med_lg_nit_vol_k_ton, med_lg_nit_price_per_ton,
-    med_lg_water_maf, med_lg_cr_area_mn_hec, med_lag_lg_agric_gdp_usd_bn_cy,
-    med_lg_credit_dis_rs_mn, med_lg_inp_out_ratio, med_lg_n_p_ratio, med_lg_tech_proxy
-  ),
-  std_dev = c(
-    std_price_nit, std_vol_nit, std_water_maf, std_cr_area_mn_hec,
-    std_lag_agric_gdp, std_credit_dis, std_tech_proxy, std_np_ratio,
-    std_input_output_ratio, std_lg_nit_vol_k_ton, std_lg_nit_price_per_ton,
-    std_lg_water_maf, std_lg_cr_area_mn_hec, std_lag_lg_agric_gdp_usd_bn_cy,
-    std_lg_credit_dis_rs_mn, std_lg_inp_out_ratio, std_lg_n_p_ratio, std_lg_tech_proxy
-  )
-)
-
-# Print the summary statistics data frame
-print(summary_stats)
-```
-
 ### Variables
 
 y = Nitrogen Volume K Ton
@@ -174,7 +80,7 @@ x1 = Price of Nitrogen
 x2 = Water Avaialability
 x3 = Cropped Accreage
 x4 = Lag Agric GDP Bn USD
-x5 = Credit Disbursement Rs Mn
+x5 = Agric Credit Mn/Agric GDP Rs Mn
 x6 = Tech Proxy
 x7 = Input Output Ratio
 x8 = N/P Ratio
@@ -187,7 +93,7 @@ six_vars_model <- lm(
                     water_maf + 
                     cr_area_mn_hec +
                     lag_agric_gdp_usd_bn_cy +
-                    credit_dis_rs_mn +
+                    agric_credit_ratio +
                     tech_proxy,
                     data = data_tsibble
         )
@@ -204,7 +110,7 @@ anova_results <- anova(six_vars_model)
 residuals_df <- data.frame(
   Fiscal_Year = data_tsibble$fis_yr, 
   Residuals = residuals(six_vars_model),
-  Predicted_Values = six_vars_model$fitted.values,
+  Fitted_Values = six_vars_model$fitted.values,
   Historic_Values = data_tsibble$nit_vol_k_ton
 )
 
