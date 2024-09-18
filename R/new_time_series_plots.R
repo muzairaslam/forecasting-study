@@ -68,7 +68,7 @@ p <- ggplot(data_tsibble, aes(x = fis_yr, y = nit_vol_k_ton)) +
   geom_line(color = "#900C3F", size = 3) +
   labs(title = paste(nit_cons), 
        x = "Fiscal Year", 
-       y = nit_price) +
+       y = "N K Tons") +
   scale_x_continuous(breaks = seq(min(data_tsibble$fis_yr-1), max(data_tsibble$fis_yr), by = 5)) +
   theme_light()  +
   theme(
